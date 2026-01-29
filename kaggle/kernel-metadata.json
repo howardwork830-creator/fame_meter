@@ -1,0 +1,15 @@
+{
+  "id": "howardleeeeee/celebrity-popularity-quantifier-taiwan",
+  "title": "Celebrity Popularity Quantifier - Taiwan",
+  "code_file": "sentiment_pipeline_v4.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

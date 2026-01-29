@@ -1,0 +1,37 @@
+# Ignore these files when pushing to Google Apps Script
+
+# Documentation
+**/*.md
+README.md
+CLAUDE.md
+PROJECT-TECHNICAL-SPEC.md
+
+# Environment and secrets
+**/*.env
+.env
+
+# Kaggle notebook
+kaggle/
+**/*.ipynb
+
+# Credentials (keep local only)
+**/*.json
+!appsscript.json
+
+# Node modules
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Plans
+.claude/
