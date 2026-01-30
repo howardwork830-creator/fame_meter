@@ -1,11 +1,11 @@
 # Celebrity Popularity Quantifier (Taiwan Market) – Complete Technical Specification
 
-**Project Name:** Celebrity Popularity Quantifier (CPQ) – Taiwan Edition  
-**Status:** Production-Ready with Advanced ML & Interactive Dashboard  
-**Version:** 4.0 (Enhanced with ML Training Pipeline & HTML Dashboard)  
-**Date:** 2026-01-07  
-**Market:** Taiwan (TW) Only  
-**Language:** Traditional Chinese (繁體中文)  
+**Project Name:** Celebrity Popularity Quantifier (CPQ) – Taiwan Edition
+**Status:** Production-Ready with Advanced ML & Interactive Dashboard
+**Version:** 5.0 (Enhanced with PDF Export, Comparison View, Accuracy Charts & Trend Velocity)
+**Date:** 2026-01-30
+**Market:** Taiwan (TW) Only
+**Language:** Traditional Chinese (繁體中文)
 **Target Audience:** Software Engineers / DevOps / Business Teams  
 
 ---
@@ -56,6 +56,13 @@ Build a **daily batch pipeline** that:
 - ✅ Source transparency (score breakdown)
 - ✅ Trend velocity (rising/falling celebrities)
 - ✅ ROI tracking & business impact metrics
+
+**Improvement #4: v5.0 New Features (2026-01-30)**
+- ✅ PDF Export: One-click PDF report generation with rankings, metrics, endorsement summary
+- ✅ Celebrity Comparison: Side-by-side modal comparing 2 celebrities with score bars, trends, platform breakdown
+- ✅ Accuracy Trend Chart: Google Charts integration showing last 7 runs with 85% threshold line
+- ✅ Trend Velocity Indicators: 🚀 Fast Rising / 📉 Fast Falling for significant changes (>15%)
+- ✅ Source Attribution: Top_Contributing_Source and Score_Change_Breakdown columns showing which platform drove score changes
 
 ### 1.4 Architecture Diagram
 
@@ -143,11 +150,15 @@ Build a **daily batch pipeline** that:
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ GAS HTML Dashboard Tab 1: Updated Rankings                      │
-│ • Auto-refresh every 15 min                                     │
-│ • Conditional formatting (Green=Endorsement Ready, Red=Risk)   │
-│ • Click-through to source breakdown                            │
-│ • Export to PDF for stakeholders                               │
+│ GAS HTML Dashboard (v5.0 Features)                              │
+│ • Tab 1: Rankings with comparison checkboxes                   │
+│ • Tab 2: News feed with filters                                 │
+│ • Tab 3: Feedback flashcards (Good/Bad/Skip)                   │
+│ • Tab 4: Analytics + Accuracy Trend Chart (Google Charts)      │
+│ • Tab 5: Source rating (1-5 stars)                             │
+│ • Comparison Modal: Side-by-side celebrity analysis            │
+│ • PDF Export: One-click downloadable report                    │
+│ • Trend Velocity: 🚀/↑/→/↓/📉 indicators                       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -290,7 +301,7 @@ TRAINING_DATA_MIN: 200 (minimum feedback samples for retraining)
 
 ### 3.4 "Results" Tab (Daily Rankings + Confidence Intervals)
 
-| Column | Type | Example | Filled By | NEW in v4.0 |
+| Column | Type | Example | Filled By | NEW in v4.0/v5.0 |
 |--------|------|---------|-----------|-----------|
 | A: Rank | Number | 1 | Kaggle | Sorted by score |
 | B: Celebrity | Text | 蔡依林 | Kaggle | |
@@ -298,17 +309,26 @@ TRAINING_DATA_MIN: 200 (minimum feedback samples for retraining)
 | D: Total_Posts_Analyzed | Number | 47 | Kaggle | From all data |
 | E: Sentiment_StdDev | Number | 0.12 | Kaggle | Volatility metric |
 | F: Weighted_Popularity_Score | Number | 0.92 | Kaggle | **MAIN KPI** |
-| **G: Confidence_Score** | **Percent** | **87%** | **Kaggle** | **✨ NEW: Model accuracy** |
-| **H: Score_Range** | **Text** | **0.88-0.96** | **Kaggle** | **✨ NEW: ± margin of error** |
-| **I: Model_Accuracy** | **Percent** | **89%** | **Kaggle** | **✨ NEW: Validation set accuracy** |
-| **J: Trend_Direction** | **Text** | **↑ Rising** | **Kaggle** | **✨ NEW: vs previous day** |
-| **K: Source_Breakdown** | **JSON** | **{"TikTok":0.94, "Instagram":0.88}** | **Kaggle** | **✨ NEW: Score by platform** |
+| **G: Confidence_Score** | **Percent** | **87%** | **Kaggle** | **✨ v4.0: Model accuracy** |
+| **H: Score_Range** | **Text** | **0.88-0.96** | **Kaggle** | **✨ v4.0: ± margin of error** |
+| **I: Model_Accuracy** | **Percent** | **89%** | **Kaggle** | **✨ v4.0: Validation set accuracy** |
+| **J: Trend_Direction** | **Text** | **🚀 Fast Rising** | **Kaggle** | **✨ v5.0: Velocity indicators** |
+| **K: Source_Breakdown** | **JSON** | **{"TikTok":0.94, "Instagram":0.88}** | **Kaggle** | **✨ v4.0: Score by platform** |
 | L: Top_Source | Text | TikTok | Kaggle | Highest contributor |
 | M: Good_Records_Ratio | Percent | 92% | Kaggle | Data quality metric |
-| N: Endorsement_Ready | Boolean | Yes | Kaggle | Score > 0.70 & StdDev < 0.25 |
-| O: Risk_Flag | Boolean | No | Kaggle | Sentiment drop > 20% |
-| P: Last_Updated | DateTime | 2026-01-07 07:15 | Kaggle | Run timestamp |
-| Q: Analysis_Notes | Text | Strong candidate | Kaggle | Summary notes |
+| N: Risk_Flag | Boolean | No | Kaggle | Sentiment drop > 20% |
+| O: Endorsement_Ready | Boolean | Yes | Kaggle | Score > 0.70 & StdDev < 0.25 |
+| **P: Top_Contributing_Source** | **Text** | **Instagram (+0.12)** | **Kaggle** | **✨ v5.0: Platform driving change** |
+| **Q: Score_Change_Breakdown** | **JSON** | **{"TikTok":0.05, "IG":-0.02}** | **Kaggle** | **✨ v5.0: Delta by platform** |
+| R: Last_Updated | DateTime | 2026-01-30 07:15 | Kaggle | Run timestamp |
+| S: Analysis_Notes | Text | Strong candidate | Kaggle | Summary notes |
+
+**Trend_Direction Values (v5.0):**
+- `🚀 Fast Rising`: delta > 0.15 (significant positive change)
+- `↑ Rising`: delta > 0.05
+- `→ Stable`: -0.05 ≤ delta ≤ 0.05
+- `↓ Falling`: delta < -0.05
+- `📉 Fast Falling`: delta < -0.15 (significant negative change)
 
 ### 3.5 "Feedback History" Tab (Training Dataset)
 
@@ -1535,15 +1555,24 @@ Days 3-7: Monitor
 | **Comparison View** | Head-to-head celebrity scores | Better decision-making |
 | **Source Breakdown** | Show TikTok vs Instagram contribution | Data transparency |
 
-### 7.2 Tier 2: Nice-to-Have (Q2 2026)
+### 7.2 Tier 2: Completed in v5.0 (2026-01-30)
+
+| Feature | Status | Implementation |
+|---------|--------|----------------|
+| Trend Velocity | ✅ Done | 🚀/📉 indicators for fast changes |
+| PDF Export | ✅ Done | One-click PDF with rankings & metrics |
+| Celebrity Comparison | ✅ Done | Side-by-side modal with charts |
+| Accuracy Trend Chart | ✅ Done | Google Charts showing last 7 runs |
+| Source Attribution | ✅ Done | Top contributing source & delta breakdown |
+
+### 7.3 Tier 3: Future Enhancements (Q2 2026)
 
 | Feature | Effort | Impact |
 |---------|--------|--------|
-| Trend Velocity | Low | Identify rising stars |
 | Predictive Scoring | Medium | 30-day forecast |
 | ROI Tracking | Medium | Link to business outcomes |
 | Segment Analysis | Medium | Micro-target by age/region |
-| White-Label Reports | Low | Shareable with stakeholders |
+| Automated Alerts | Low | Email/Slack on risk flags |
 
 ---
 
@@ -1562,9 +1591,26 @@ Days 3-7: Monitor
 
 ---
 
-**End of Technical Specification v4.0**
+**End of Technical Specification v5.0**
 
-**Prepared for:** Software Engineering Team + Business Users  
-**Status:** Production-Ready with ML Pipeline & Interactive Dashboard  
-**Date:** 2026-01-07  
-**Version:** 4.0 (Enhanced with Improvements #1, #2, #3)
+**Prepared for:** Software Engineering Team + Business Users
+**Status:** Production-Ready with ML Pipeline, Interactive Dashboard & Advanced Features
+**Date:** 2026-01-30
+**Version:** 5.0 (Enhanced with PDF Export, Comparison View, Accuracy Charts, Trend Velocity & Source Attribution)
+
+---
+
+## Changelog
+
+### v5.0 (2026-01-30)
+- Added PDF Export functionality (📄 匯出 PDF button)
+- Added Celebrity Comparison modal (side-by-side analysis)
+- Added Accuracy Trend Chart (Google Charts, last 7 runs)
+- Enhanced Trend Direction with velocity indicators (🚀 Fast Rising / 📉 Fast Falling)
+- Added Source Attribution (Top_Contributing_Source, Score_Change_Breakdown columns)
+
+### v4.0 (2026-01-07)
+- Production ML Pipeline with train/test/validation split
+- Interactive HTML Dashboard with 5 tabs
+- Confidence intervals and model metrics
+- Audit trail and alert system

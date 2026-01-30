@@ -10,8 +10,17 @@ Celebrity Popularity Quantifier (CPQ) - Taiwan Edition: A daily batch pipeline t
 - **Data Ingestion**: Perplexity API fetches social media mentions (Instagram, Facebook, TikTok, YouTube)
 - **Orchestration**: Google Apps Script (GAS) triggers at 06:00 UTC+8
 - **Storage**: Google Sheets as primary database (Sheet ID: `1sgKkhqP0_WAzdBfBbH2oWLAav-WlGkbCyayLguaHG6Q`)
-- **ML Processing**: Kaggle Notebook with `lxyuan/distilbert-base-multilingual-cased-sentiments-student` model
+- **ML Processing**: Kaggle Notebook with `uer/roberta-base-chinese-sentiment` model
 - **Dashboard**: HTML5 + JavaScript embedded in GAS
+
+**Data Flow:**
+```
+Perplexity API → GAS orchestrator.gs → Google Sheets (Raw Data)
+                                              ↓
+                        Human Review (dashboard.gs) → Feedback Updated
+                                              ↓
+                        Kaggle Notebook → Sentiment Analysis → Results Sheet
+```
 
 ## Development Commands
 
@@ -131,3 +140,19 @@ After deployment, a "CPQ Tools" menu appears in Sheets with:
 - Dashboard batches feedback saves (debounced 3s) to reduce API calls
 - Kaggle notebook requires ≥10 labelled samples to report accuracy metrics; otherwise shows "N/A"
 - Model uses stratified train/test/val split to balance celebrity representation
+
+## Debugging Tips
+
+**GAS Issues:**
+- View logs: `clasp logs` or Logger in GAS editor
+- Execution lock stuck: wait 30s or manually release via GAS editor
+- API key missing: Check `PropertiesService.getScriptProperties().getProperty('PERPLEXITY_API_KEY')`
+
+**Kaggle Issues:**
+- Auth failures: Verify `GCP_JSON` secret contains valid service account JSON
+- Memory errors: Reduce batch size or use GPU runtime
+
+**Common Perplexity API Responses:**
+- Empty posts array: Celebrity name may not be recognized; try alternative names
+- Markdown-wrapped JSON: Parser handles `\`\`\`json` blocks automatically
+- Refusal responses: Logged and skipped gracefully

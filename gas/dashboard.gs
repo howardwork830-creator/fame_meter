@@ -96,6 +96,33 @@ function getHtmlDashboard() {
       transform: translateY(-1px);
     }
 
+    .header-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .export-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .export-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-1px);
+    }
+
+    .export-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     /* Tabs */
     .tabs {
       display: flex;
@@ -189,6 +216,60 @@ function getHtmlDashboard() {
     .rank-1 { color: #ffd700; }
     .rank-2 { color: #c0c0c0; }
     .rank-3 { color: #cd7f32; }
+
+    /* Endorsement badges */
+    .endorsement-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .endorsement-badge.ready {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .endorsement-badge.not-ready {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    /* Risk alert banner */
+    .risk-alert-banner {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      border: 2px solid #dc3545;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: pulse-border 2s ease-in-out infinite;
+    }
+
+    .risk-alert-banner .alert-icon {
+      font-size: 24px;
+    }
+
+    .risk-alert-banner .alert-text {
+      flex: 1;
+      font-weight: 600;
+      color: #721c24;
+    }
+
+    .risk-alert-banner .alert-details {
+      font-size: 13px;
+      color: #856404;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { border-color: #dc3545; }
+      50% { border-color: #f5c6cb; }
+    }
 
     .celebrity-name {
       font-weight: 600;
@@ -890,6 +971,259 @@ function getHtmlDashboard() {
     .source-save-indicator.show {
       opacity: 1;
     }
+
+    /* Trend velocity styles (Fix 8) */
+    .trend.fast-up {
+      color: #155724;
+      font-weight: 700;
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .trend.fast-down {
+      color: #721c24;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    /* Celebrity Comparison Modal (Fix 6) */
+    .comparison-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .comparison-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .comparison-modal {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .comparison-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .comparison-header h2 {
+      font-size: 22px;
+      color: #333;
+    }
+
+    .close-modal-btn {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.2s;
+    }
+
+    .close-modal-btn:hover {
+      color: #333;
+    }
+
+    .comparison-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .comparison-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid #e9ecef;
+    }
+
+    .comparison-card-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .comparison-card-header h3 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .comparison-rank {
+      font-size: 14px;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .comparison-score-bar {
+      background: #e9ecef;
+      border-radius: 8px;
+      height: 30px;
+      margin: 15px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .comparison-score-fill {
+      height: 100%;
+      border-radius: 8px;
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .comparison-score-fill.positive {
+      background: linear-gradient(90deg, #28a745, #20c997);
+    }
+
+    .comparison-score-fill.negative {
+      background: linear-gradient(90deg, #dc3545, #e83e8c);
+    }
+
+    .comparison-stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .comparison-stat:last-child {
+      border-bottom: none;
+    }
+
+    .comparison-stat-label {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .comparison-stat-value {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .comparison-source-breakdown {
+      margin-top: 15px;
+    }
+
+    .comparison-source-breakdown h4 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .source-bar-container {
+      margin-bottom: 8px;
+    }
+
+    .source-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .source-bar {
+      background: #e9ecef;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .source-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: #667eea;
+    }
+
+    .compare-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .compare-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      display: none;
+      z-index: 100;
+      transition: all 0.3s;
+    }
+
+    .compare-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .compare-btn.visible {
+      display: block;
+    }
+
+    /* Accuracy Chart Container (Fix 7) */
+    .accuracy-chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .accuracy-chart-container h3 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    #accuracyChart {
+      width: 100%;
+      height: 300px;
+    }
   </style>
 </head>
 <body>
@@ -899,7 +1233,10 @@ function getHtmlDashboard() {
         <h1>🎬 名人聲量監測儀表板</h1>
         <p>台灣市場分析 | 最後更新：<span id="lastUpdate">載入中...</span></p>
       </div>
-      <button class="refresh-btn" onclick="location.reload()">🔄 重新整理</button>
+      <div class="header-buttons">
+        <button class="export-btn" onclick="exportToPdf()">📄 匯出 PDF</button>
+        <button class="refresh-btn" onclick="location.reload()">🔄 重新整理</button>
+      </div>
     </div>
 
     <div class="tabs">
@@ -912,20 +1249,37 @@ function getHtmlDashboard() {
 
     <!-- TAB 1: 排名 (RANKINGS) -->
     <div id="rankings" class="tab-content active">
+      <div id="riskAlertContainer"></div>
       <table class="rankings-table">
         <thead>
           <tr>
+            <th>比較</th>
             <th>排名</th>
             <th>名人</th>
             <th>綜合分數</th>
             <th>可信度</th>
             <th>趨勢</th>
+            <th>代言狀態</th>
           </tr>
         </thead>
         <tbody id="rankingsBody">
-          <tr><td colspan="5" class="loading">載入中...</td></tr>
+          <tr><td colspan="7" class="loading">載入中...</td></tr>
         </tbody>
       </table>
+      <button class="compare-btn" id="compareBtn" onclick="openComparison()">🔄 比較選中名人</button>
+    </div>
+
+    <!-- Comparison Modal (Fix 6) -->
+    <div class="comparison-overlay" id="comparisonOverlay" onclick="closeComparisonOnOverlay(event)">
+      <div class="comparison-modal" onclick="event.stopPropagation()">
+        <div class="comparison-header">
+          <h2>📊 名人比較</h2>
+          <button class="close-modal-btn" onclick="closeComparison()">&times;</button>
+        </div>
+        <div class="comparison-cards" id="comparisonCards">
+          <!-- Comparison content will be injected here -->
+        </div>
+      </div>
     </div>
 
     <!-- TAB 2: 最新動態 (NEWS VIEW - NEW) -->
@@ -1041,6 +1395,12 @@ function getHtmlDashboard() {
           <div class="metric-trend" id="lastRunStatus">-</div>
         </div>
       </div>
+
+      <!-- Accuracy Trend Chart (Fix 7) -->
+      <div class="accuracy-chart-container">
+        <h3>📈 準確度趨勢 (最近 7 次執行)</h3>
+        <div id="accuracyChart"></div>
+      </div>
     </div>
 
     <!-- TAB 5: 來源評分 (SOURCE RATING) -->
@@ -1074,6 +1434,9 @@ function getHtmlDashboard() {
     </div>
   </div>
 
+  <!-- Google Charts Library (Fix 7) -->
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
   <script>
     // ==========================================
     // GLOBAL STATE WITH CACHING
@@ -1081,6 +1444,8 @@ function getHtmlDashboard() {
     let currentPostIndex = 0;
     let posts = [];
     let currentTab = 'rankings';
+    let selectedForComparison = [];  // Fix 6: Track selected celebrities
+    let chartsLoaded = false;  // Fix 7: Track Google Charts loading
 
     // Unified data cache - loaded once, used everywhere
     let dataCache = {
@@ -1088,11 +1453,21 @@ function getHtmlDashboard() {
       news: { posts: [], celebrities: [] },
       sources: [],
       analytics: null,
+      accuracyHistory: [],  // Fix 7: Accuracy trend data
       progress: { reviewed: 0, total: 0 },
       timestamp: 0,
       loaded: false
     };
     const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+    // Load Google Charts (Fix 7)
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(function() {
+      chartsLoaded = true;
+      if (dataCache.loaded && currentTab === 'analytics') {
+        renderAccuracyChart(dataCache.accuracyHistory);
+      }
+    });
 
     // Batch queues for reducing API calls
     let feedbackBatch = [];
@@ -1142,6 +1517,7 @@ function getHtmlDashboard() {
             news: data.news || { posts: [], celebrities: [] },
             sources: data.sources || [],
             analytics: data.analytics || null,
+            accuracyHistory: data.accuracyHistory || [],  // Fix 7
             progress: data.progress || { reviewed: 0, total: 0 },
             timestamp: Date.now(),
             loaded: true
@@ -1204,25 +1580,73 @@ function getHtmlDashboard() {
     // ==========================================
     function renderRankings(results) {
       const tbody = document.getElementById('rankingsBody');
+      const riskContainer = document.getElementById('riskAlertContainer');
 
       if (!results || results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><h3>尚無排名資料</h3><p>請執行資料擷取流程</p></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><h3>尚無排名資料</h3><p>請執行資料擷取流程</p></td></tr>';
+        if (riskContainer) riskContainer.innerHTML = '';
         return;
       }
+
+      // Check for risk flags and render alert banner (Fix 4)
+      const riskyResults = results.filter(r => r.riskFlag === 'Yes' || r.risk_flag === 'Yes');
+      if (riskContainer) {
+        if (riskyResults.length > 0) {
+          const riskyNames = riskyResults.map(r => r.celebrity).join('、');
+          riskContainer.innerHTML = \`
+            <div class="risk-alert-banner">
+              <span class="alert-icon">⚠️</span>
+              <div>
+                <div class="alert-text">聲量警告：偵測到負面趨勢</div>
+                <div class="alert-details">以下名人近期聲量下跌超過 20%：\${escapeHtml(riskyNames)}</div>
+              </div>
+            </div>
+          \`;
+        } else {
+          riskContainer.innerHTML = '';
+        }
+      }
+
+      // Reset comparison selection
+      selectedForComparison = [];
+      updateCompareButton();
 
       tbody.innerHTML = results.map(r => {
         const rankClass = r.rank <= 3 ? 'rank-' + r.rank : '';
         const trend = r.trend || '→ 持平';
-        const trendClass = trend.includes('↑') ? 'up' : trend.includes('↓') ? 'down' : 'stable';
-        const trendText = trend.includes('↑') ? '↑ 上升' : trend.includes('↓') ? '↓ 下降' : '→ 持平';
+
+        // Fix 8: Handle trend velocity levels
+        let trendClass = 'stable';
+        let trendText = '→ 持平';
+        if (trend.includes('🚀') || trend.includes('Fast Rising')) {
+          trendClass = 'fast-up';
+          trendText = '🚀 快速上升';
+        } else if (trend.includes('📉') || trend.includes('Fast Falling')) {
+          trendClass = 'fast-down';
+          trendText = '📉 快速下降';
+        } else if (trend.includes('↑') || trend.includes('Rising')) {
+          trendClass = 'up';
+          trendText = '↑ 上升';
+        } else if (trend.includes('↓') || trend.includes('Falling')) {
+          trendClass = 'down';
+          trendText = '↓ 下降';
+        }
+
+        // Endorsement badge (Fix 2)
+        const isReady = r.endorsement === 'Yes' || r.endorsement_ready === 'Yes';
+        const endorsementBadge = isReady
+          ? '<span class="endorsement-badge ready">✓ 可代言</span>'
+          : '<span class="endorsement-badge not-ready">✗ 待觀察</span>';
 
         return \`
           <tr>
+            <td><input type="checkbox" class="compare-checkbox" data-celebrity="\${escapeHtml(r.celebrity)}" onchange="toggleComparison(this, \${r.rank - 1})"></td>
             <td><span class="rank \${rankClass}">#\${escapeHtml(r.rank)}</span></td>
             <td class="celebrity-name">\${escapeHtml(r.celebrity)}</td>
             <td class="score">\${typeof r.score === 'number' ? r.score.toFixed(2) : escapeHtml(r.score)}</td>
             <td><span class="confidence">\${escapeHtml(r.confidence)}%</span></td>
             <td class="trend \${trendClass}">\${escapeHtml(trendText)}</td>
+            <td>\${endorsementBadge}</td>
           </tr>
         \`;
       }).join('');
@@ -1522,6 +1946,58 @@ function getHtmlDashboard() {
           </div>
         \`;
       }
+
+      // Fix 7: Render accuracy trend chart
+      if (chartsLoaded && dataCache.accuracyHistory) {
+        renderAccuracyChart(dataCache.accuracyHistory);
+      }
+    }
+
+    // Fix 7: Render Accuracy Trend Chart
+    function renderAccuracyChart(historyData) {
+      if (!chartsLoaded || !historyData || historyData.length === 0) {
+        document.getElementById('accuracyChart').innerHTML = '<div class="empty-state"><p>尚無歷史資料</p></div>';
+        return;
+      }
+
+      // Prepare data for Google Charts
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', '日期');
+      data.addColumn('number', '準確度 (%)');
+      data.addColumn('number', '門檻 (85%)');
+
+      historyData.forEach(row => {
+        data.addRow([row.date, row.accuracy, 85]);
+      });
+
+      const options = {
+        title: '',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        hAxis: {
+          title: '執行日期',
+          textStyle: { fontSize: 12 }
+        },
+        vAxis: {
+          title: '準確度 (%)',
+          minValue: 0,
+          maxValue: 100,
+          gridlines: { count: 5 }
+        },
+        series: {
+          0: { color: '#667eea', lineWidth: 3 },
+          1: { color: '#dc3545', lineWidth: 2, lineDashStyle: [4, 4] }
+        },
+        chartArea: { width: '85%', height: '70%' },
+        animation: {
+          startup: true,
+          duration: 500,
+          easing: 'out'
+        }
+      };
+
+      const chart = new google.visualization.LineChart(document.getElementById('accuracyChart'));
+      chart.draw(data, options);
     }
 
     // Fallback loader
@@ -1746,6 +2222,154 @@ function getHtmlDashboard() {
     }
 
     // ==========================================
+    // FIX 5: PDF EXPORT
+    // ==========================================
+    function exportToPdf() {
+      const btn = document.querySelector('.export-btn');
+      btn.disabled = true;
+      btn.textContent = '📄 匯出中...';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          btn.disabled = false;
+          btn.textContent = '📄 匯出 PDF';
+
+          if (result.success) {
+            // Open PDF download link
+            const link = document.createElement('a');
+            link.href = result.url;
+            link.target = '_blank';
+            link.click();
+          } else {
+            alert('PDF 匯出失敗：' + (result.error || '未知錯誤'));
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.disabled = false;
+          btn.textContent = '📄 匯出 PDF';
+          alert('PDF 匯出失敗：' + error.message);
+        })
+        .generatePdfReport();
+    }
+
+    // ==========================================
+    // FIX 6: CELEBRITY COMPARISON
+    // ==========================================
+    function toggleComparison(checkbox, index) {
+      const celebrity = checkbox.dataset.celebrity;
+
+      if (checkbox.checked) {
+        if (selectedForComparison.length >= 2) {
+          // Uncheck oldest selection
+          const oldestIndex = selectedForComparison[0].index;
+          const oldCheckbox = document.querySelector(\`.compare-checkbox[data-celebrity="\${selectedForComparison[0].celebrity}"]\`);
+          if (oldCheckbox) oldCheckbox.checked = false;
+          selectedForComparison.shift();
+        }
+        selectedForComparison.push({ celebrity, index });
+      } else {
+        selectedForComparison = selectedForComparison.filter(s => s.celebrity !== celebrity);
+      }
+
+      updateCompareButton();
+    }
+
+    function updateCompareButton() {
+      const btn = document.getElementById('compareBtn');
+      if (selectedForComparison.length === 2) {
+        btn.classList.add('visible');
+        btn.textContent = \`🔄 比較 \${selectedForComparison[0].celebrity} vs \${selectedForComparison[1].celebrity}\`;
+      } else {
+        btn.classList.remove('visible');
+      }
+    }
+
+    function openComparison() {
+      if (selectedForComparison.length !== 2) return;
+
+      const celeb1 = dataCache.results[selectedForComparison[0].index];
+      const celeb2 = dataCache.results[selectedForComparison[1].index];
+
+      if (!celeb1 || !celeb2) return;
+
+      const cardsHtml = [celeb1, celeb2].map(c => {
+        const score = typeof c.score === 'number' ? c.score : parseFloat(c.score) || 0;
+        const scorePercent = Math.min(100, Math.max(0, (score + 1) * 50)); // -1 to 1 -> 0 to 100
+        const isPositive = score >= 0;
+        const breakdown = c.sourceBreakdown ? JSON.parse(c.sourceBreakdown || '{}') : {};
+
+        let breakdownHtml = '';
+        Object.entries(breakdown).forEach(([platform, val]) => {
+          const pct = Math.min(100, Math.max(0, (parseFloat(val) + 1) * 50));
+          breakdownHtml += \`
+            <div class="source-bar-container">
+              <div class="source-bar-label">
+                <span>\${escapeHtml(platform)}</span>
+                <span>\${parseFloat(val).toFixed(2)}</span>
+              </div>
+              <div class="source-bar">
+                <div class="source-bar-fill" style="width: \${pct}%"></div>
+              </div>
+            </div>
+          \`;
+        });
+
+        const trend = c.trend || '→ Stable';
+        let trendText = '持平';
+        if (trend.includes('🚀') || trend.includes('Fast Rising')) trendText = '🚀 快速上升';
+        else if (trend.includes('📉') || trend.includes('Fast Falling')) trendText = '📉 快速下降';
+        else if (trend.includes('↑') || trend.includes('Rising')) trendText = '↑ 上升';
+        else if (trend.includes('↓') || trend.includes('Falling')) trendText = '↓ 下降';
+
+        return \`
+          <div class="comparison-card">
+            <div class="comparison-card-header">
+              <h3>\${escapeHtml(c.celebrity)}</h3>
+              <span class="comparison-rank">排名 #\${c.rank}</span>
+            </div>
+
+            <div class="comparison-score-bar">
+              <div class="comparison-score-fill \${isPositive ? 'positive' : 'negative'}" style="width: \${scorePercent}%">
+                \${score.toFixed(2)}
+              </div>
+            </div>
+
+            <div class="comparison-stat">
+              <span class="comparison-stat-label">趨勢</span>
+              <span class="comparison-stat-value">\${escapeHtml(trendText)}</span>
+            </div>
+            <div class="comparison-stat">
+              <span class="comparison-stat-label">可信度</span>
+              <span class="comparison-stat-value">\${c.confidence || 0}%</span>
+            </div>
+            <div class="comparison-stat">
+              <span class="comparison-stat-label">代言狀態</span>
+              <span class="comparison-stat-value">\${c.endorsement === 'Yes' ? '✓ 可代言' : '✗ 待觀察'}</span>
+            </div>
+
+            <div class="comparison-source-breakdown">
+              <h4>📊 平台分析</h4>
+              \${breakdownHtml || '<p style="color:#888;font-size:12px;">無平台資料</p>'}
+            </div>
+          </div>
+        \`;
+      }).join('');
+
+      document.getElementById('comparisonCards').innerHTML = cardsHtml;
+      document.getElementById('comparisonOverlay').classList.add('active');
+    }
+
+    function closeComparison() {
+      document.getElementById('comparisonOverlay').classList.remove('active');
+    }
+
+    function closeComparisonOnOverlay(event) {
+      if (event.target === document.getElementById('comparisonOverlay')) {
+        closeComparison();
+      }
+    }
+
+    // ==========================================
     // INITIALIZATION
     // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
@@ -1786,13 +2410,17 @@ function getResults() {
       return [];
     }
 
+    // Columns: Rank(0), Celebrity(1), Avg_Sentiment(2), Total_Posts(3), StdDev(4),
+    // Weighted_Score(5), Confidence(6), Score_Range(7), Model_Accuracy(8), Trend(9),
+    // Source_Breakdown(10), Top_Source(11), Good_Ratio(12), Risk_Flag(13), Endorsement_Ready(14)
     return data.slice(1).map((row) => ({
       rank: row[0] || 0,
       celebrity: row[1] || "",
       score: row[5] || 0,  // Weighted_Popularity_Score
       confidence: row[6] || 0,  // Confidence_Score
-      // endorsement removed - not needed
-      trend: row[9] || "→ Stable"  // Trend_Direction
+      trend: row[9] || "→ Stable",  // Trend_Direction
+      riskFlag: row[13] || "No",  // Risk_Flag
+      endorsement: row[14] || "No"  // Endorsement_Ready
     })).filter(r => r.celebrity);
 
   } catch (e) {
@@ -2202,6 +2830,7 @@ function getAllDashboardData() {
       feedback: getFeedbackFromRawData(rawData),
       sources: getSourcesFromSheet(sourceSheet),
       analytics: getAnalyticsFromData(metricsSheet, rawData),
+      accuracyHistory: getAccuracyHistoryFromSheet(metricsSheet),  // Fix 7
       progress: getProgressFromRawData(rawData)
     };
 
@@ -2227,12 +2856,22 @@ function getResultsFromSheet(resultsSheet) {
   const data = resultsSheet.getDataRange().getValues();
   if (data.length <= 1) return [];
 
+  // Columns: Rank(0), Celebrity(1), Avg_Sentiment(2), Total_Posts(3), StdDev(4),
+  // Weighted_Score(5), Confidence(6), Score_Range(7), Model_Accuracy(8), Trend(9),
+  // Source_Breakdown(10), Top_Source(11), Good_Ratio(12), Risk_Flag(13), Endorsement_Ready(14),
+  // Top_Contributing_Source(15), Score_Change_Breakdown(16)
   return data.slice(1).map((row) => ({
     rank: row[0] || 0,
     celebrity: row[1] || "",
     score: row[5] || 0,
     confidence: row[6] || 0,
-    trend: row[9] || "→ Stable"
+    trend: row[9] || "→ Stable",
+    sourceBreakdown: row[10] || "{}",  // Fix 6: Include for comparison view
+    topSource: row[11] || "",
+    riskFlag: row[13] || "No",
+    endorsement: row[14] || "No",
+    topContributingSource: row[15] || "",  // Fix 9
+    scoreChangeBreakdown: row[16] || "{}"  // Fix 9
   })).filter(r => r.celebrity);
 }
 
@@ -2331,6 +2970,39 @@ function getSourcesFromSheet(sourceSheet) {
     ratedBy: row[4] || "auto",
     lastModified: row[5] ? formatDate(row[5]) : "-"
   })).filter(s => s.name);
+}
+
+/**
+ * Helper: Extract accuracy history from metrics sheet (Fix 7)
+ */
+function getAccuracyHistoryFromSheet(metricsSheet) {
+  if (!metricsSheet) return [];
+
+  const data = metricsSheet.getDataRange().getValues();
+  if (data.length <= 1) return [];
+
+  // Get last 7 rows (excluding header)
+  const rows = data.slice(1).slice(-7);
+
+  return rows.map(row => {
+    const dateVal = row[0];
+    let dateStr = '-';
+    if (dateVal) {
+      try {
+        const d = new Date(dateVal);
+        dateStr = d.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' });
+      } catch (e) {
+        dateStr = String(dateVal).substring(0, 10);
+      }
+    }
+
+    // Parse accuracy (column 7, index 6)
+    let accuracy = 0;
+    const accStr = String(row[6] || '0');
+    accuracy = parseFloat(accStr.replace('%', '')) || 0;
+
+    return { date: dateStr, accuracy: accuracy };
+  });
 }
 
 /**
@@ -2455,5 +3127,237 @@ function saveSourceRatingsBatch(ratings) {
   } catch (e) {
     Logger.log(`Error in saveSourceRatingsBatch: ${e.message}`);
     throw e;
+  }
+}
+
+// =====================================================
+// FIX 5: PDF EXPORT FUNCTION
+// =====================================================
+
+/**
+ * Generate PDF report with rankings and metrics
+ * @returns {Object} { success: boolean, url: string, error: string }
+ */
+function generatePdfReport() {
+  try {
+    const ss = SpreadsheetApp.openById(DASHBOARD_SHEET_ID);
+    const results = getResults();
+    const analytics = getAnalytics();
+
+    const today = new Date().toLocaleDateString('zh-TW');
+
+    // Build HTML content for PDF
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body {
+            font-family: 'Noto Sans TC', sans-serif;
+            padding: 40px;
+            color: #333;
+          }
+          h1 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+          }
+          h2 {
+            color: #444;
+            margin-top: 30px;
+          }
+          .header-info {
+            color: #666;
+            margin-bottom: 30px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: left;
+          }
+          th {
+            background: #667eea;
+            color: white;
+          }
+          tr:nth-child(even) {
+            background: #f9f9f9;
+          }
+          .metric-box {
+            display: inline-block;
+            background: #f5f5f5;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            text-align: center;
+          }
+          .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+          }
+          .metric-label {
+            font-size: 12px;
+            color: #888;
+          }
+          .endorsement-ready {
+            color: #28a745;
+            font-weight: bold;
+          }
+          .endorsement-not-ready {
+            color: #dc3545;
+          }
+          .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #888;
+            font-size: 12px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🎬 名人聲量監測報告</h1>
+        <p class="header-info">報告日期：${today} | 台灣市場分析</p>
+
+        <h2>📊 模型指標</h2>
+        <div>
+          <div class="metric-box">
+            <div class="metric-value">${analytics.accuracy || 0}%</div>
+            <div class="metric-label">模型準確度</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-value">${analytics.trainingData || 0}</div>
+            <div class="metric-label">訓練資料</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-value">${analytics.goodRatio || 0}%</div>
+            <div class="metric-label">好評比例</div>
+          </div>
+        </div>
+
+        <h2>🏆 名人排名 (Top 10)</h2>
+        <table>
+          <tr>
+            <th>排名</th>
+            <th>名人</th>
+            <th>綜合分數</th>
+            <th>趨勢</th>
+            <th>代言狀態</th>
+          </tr>
+    `;
+
+    // Add top 10 rankings
+    const top10 = results.slice(0, 10);
+    top10.forEach(r => {
+      const endorsementClass = r.endorsement === 'Yes' ? 'endorsement-ready' : 'endorsement-not-ready';
+      const endorsementText = r.endorsement === 'Yes' ? '✓ 可代言' : '✗ 待觀察';
+      htmlContent += `
+        <tr>
+          <td>#${r.rank}</td>
+          <td>${r.celebrity}</td>
+          <td>${typeof r.score === 'number' ? r.score.toFixed(2) : r.score}</td>
+          <td>${r.trend || '→ 持平'}</td>
+          <td class="${endorsementClass}">${endorsementText}</td>
+        </tr>
+      `;
+    });
+
+    // Endorsement summary
+    const readyCount = results.filter(r => r.endorsement === 'Yes').length;
+    const notReadyCount = results.length - readyCount;
+
+    htmlContent += `
+        </table>
+
+        <h2>✨ 代言摘要</h2>
+        <p>
+          <strong>可代言名人：</strong> ${readyCount} 位<br>
+          <strong>待觀察名人：</strong> ${notReadyCount} 位
+        </p>
+
+        <div class="footer">
+          <p>此報告由 Celebrity Popularity Quantifier (CPQ) 系統自動產生</p>
+          <p>上次執行：${analytics.lastRun || '-'} | 狀態：${analytics.lastRunStatus || '-'}</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Create PDF blob
+    const blob = HtmlService.createHtmlOutput(htmlContent)
+      .getBlob()
+      .setName(`CPQ_Report_${today.replace(/\//g, '-')}.pdf`);
+
+    // Save to Drive and get URL
+    const file = DriveApp.createFile(blob);
+    const url = file.getDownloadUrl();
+
+    Logger.log(`PDF generated: ${file.getName()}`);
+
+    return { success: true, url: url };
+
+  } catch (e) {
+    Logger.log(`Error generating PDF: ${e.message}`);
+    return { success: false, error: e.message };
+  }
+}
+
+// =====================================================
+// FIX 7: ACCURACY HISTORY FUNCTION
+// =====================================================
+
+/**
+ * Get accuracy history for trend chart (last 7 runs)
+ * @returns {Array} Array of { date: string, accuracy: number }
+ */
+function getAccuracyHistory() {
+  try {
+    const metricsSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Model Metrics");
+
+    if (!metricsSheet) {
+      return [];
+    }
+
+    const data = metricsSheet.getDataRange().getValues();
+
+    if (data.length <= 1) {
+      return [];
+    }
+
+    // Get last 7 rows (excluding header)
+    const rows = data.slice(1).slice(-7);
+
+    return rows.map(row => {
+      const dateVal = row[0];
+      let dateStr = '-';
+      if (dateVal) {
+        try {
+          const d = new Date(dateVal);
+          dateStr = d.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' });
+        } catch (e) {
+          dateStr = String(dateVal).substring(0, 10);
+        }
+      }
+
+      // Parse accuracy (column 7, index 6)
+      let accuracy = 0;
+      const accStr = String(row[6] || '0');
+      accuracy = parseFloat(accStr.replace('%', '')) || 0;
+
+      return {
+        date: dateStr,
+        accuracy: accuracy
+      };
+    });
+
+  } catch (e) {
+    Logger.log(`Error in getAccuracyHistory: ${e.message}`);
+    return [];
   }
 }

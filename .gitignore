@@ -1,0 +1,36 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.*
+*.env
+
+# API keys and credentials
+*credentials*.json
+*secret*.json
+*-key.json
+service-account*.json
+
+# Google Apps Script
+.clasp.json
+.clasprc.json
+
+# Kaggle
+kaggle.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
