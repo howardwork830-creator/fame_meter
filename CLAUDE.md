@@ -62,6 +62,7 @@ In GAS editor (clasp open), run these functions manually:
 - `testPerplexityAPI()` - Test API connection
 - `testLoadConfig()` - Verify configuration loading
 - `testSingleCelebrity()` - Test fetching for one celebrity
+- `testKaggleAPI()` - Test Kaggle API connection and credentials
 - `initializeSheets()` - Create all required sheets with headers
 - `setupDailyTrigger()` - Set up the 06:00 UTC+8 daily trigger
 
@@ -79,6 +80,10 @@ After deployment, a "CPQ Tools" menu appears in Sheets with:
 - Sync Sources
 - Initialize Sheets
 - Setup Daily Trigger
+- Show Dashboard
+- Run Sentiment Analysis (triggers Kaggle notebook)
+- Check Kaggle Status (monitor notebook execution)
+- Reboot (reset system to clean state for presentations)
 
 ## Key Components
 
@@ -157,10 +162,24 @@ The codebase has been modularized for easier debugging and maintenance:
   - `fixRawDataHeaders()` - Correct header mismatches (labels only or reorder)
   - `reorderRawDataColumns()` - Move columns to correct positions based on headers
   - `addMissingResultsColumns()` - Add v5.0 columns
+- `reset.gs` (~120 lines) - System reset for presentations
+  - `reboot()` - Main entry point, clears all data and resets configs to defaults
+  - `clearDataSheet()` - Clear a sheet while preserving headers
+  - `resetConfigSheet()` - Reset Config to 6 default settings
+  - `resetSourceWeightsSheet()` - Reset Source Weights to 5 platform defaults
 - `testing.gs` (~100 lines) - Test utilities
   - `testPerplexityAPI()`, `testLoadConfig()`, `testSingleCelebrity()`
   - `testSheetAccess()`, `testDeduplicationKeys()`
   - `testFullPipelineDryRun()` - End-to-end test without writing
+
+#### Kaggle API Integration
+- `kaggleApi.gs` (~180 lines) - Kaggle notebook trigger via API
+  - `triggerKaggleSentimentAnalysis()` - Menu entry point with confirmation dialog
+  - `pushKaggleKernel()` - POST to Kaggle API to trigger notebook run
+  - `checkKaggleKernelStatus()` - Check notebook execution status
+  - `getKaggleKernelStatus()` - GET kernel status from API
+  - `getKaggleCredentials()` - Load credentials from Script Properties
+  - `testKaggleAPI()` - Test function to verify API connection
 
 ### Kaggle Notebook (`kaggle/`)
 - `sentiment_pipeline_v4.ipynb` - Sentiment analysis pipeline
@@ -200,6 +219,12 @@ The codebase has been modularized for easier debugging and maintenance:
 
 **Google Sheets API**: Service account OAuth 2.0 with gspread library
 - Credentials stored in Kaggle Secrets (`GCP_JSON`)
+
+**Kaggle API**: `POST https://www.kaggle.com/api/v1/kernels/push`
+- Auth: Basic Auth with `username:apiKey` base64 encoded
+- Credentials stored in GAS Script Properties (`KAGGLE_USERNAME`, `KAGGLE_API_KEY`)
+- Kernel ID: `howardleeeeee/celebrity-popularity-quantifier-taiwan`
+- Status endpoint: `GET /kernels/status?userName=...&kernelSlug=...`
 
 ## Language & Market
 - Market: Taiwan (TW) only

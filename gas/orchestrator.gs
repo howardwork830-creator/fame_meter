@@ -305,5 +305,10 @@ function onOpen() {
     .addItem('⚙️ Initialize Sheets', 'initializeSheets')
     .addItem('🕐 Setup Daily Trigger', 'setupDailyTrigger')
     .addItem('📋 Show Dashboard', 'showDashboard')
+    .addSeparator()
+    .addItem('🤖 Run Sentiment Analysis', 'triggerKaggleSentimentAnalysis')
+    .addItem('📊 Check Kaggle Status', 'checkKaggleKernelStatus')
+    .addSeparator()
+    .addItem('🔄 Reboot', 'reboot')
     .addToUi();
 }
