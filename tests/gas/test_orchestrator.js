@@ -26,7 +26,7 @@ global.Logger = mockLogger;
  * Extracted logic from orchestrator.gs for testing
  */
 function validatePerplexityResponse(posts, celebrity) {
-  const required_fields = ["platform", "account_name", "content", "engagement",
+  const required_fields = ["platform", "account_name", "content",
                           "post_timestamp", "post_url"];
   const valid_platforms = ["Instagram", "Facebook", "TikTok", "YouTube", "News"];
 
@@ -36,11 +36,6 @@ function validatePerplexityResponse(posts, celebrity) {
     }
 
     if (!valid_platforms.includes(post.platform)) {
-      return false;
-    }
-
-    const engagement = post.engagement.likes || post.engagement.views;
-    if (!engagement || engagement <= 0) {
       return false;
     }
 
@@ -76,7 +71,6 @@ describe('validatePerplexityResponse', () => {
     platform: 'Instagram',
     account_name: '@test_account',
     content: 'Test post content',
-    engagement: { likes: 1000, comments: 50 },
     post_timestamp: '2026-01-30T10:00:00+08:00',
     post_url: 'https://instagram.com/p/test123',
     account_type: 'official'
@@ -103,25 +97,14 @@ describe('validatePerplexityResponse', () => {
     expect(result).toHaveLength(0);
   });
 
-  test('accepts post with views instead of likes', () => {
+  test('accepts TikTok platform', () => {
     const videoPost = {
       ...validPost,
-      platform: 'TikTok',
-      engagement: { views: 50000, likes: 0 }
+      platform: 'TikTok'
     };
 
     const result = validatePerplexityResponse([videoPost], 'Test Celebrity');
     expect(result).toHaveLength(1);
-  });
-
-  test('rejects post with zero engagement', () => {
-    const noEngagement = {
-      ...validPost,
-      engagement: { likes: 0, comments: 0 }
-    };
-
-    const result = validatePerplexityResponse([noEngagement], 'Test Celebrity');
-    expect(result).toHaveLength(0);
   });
 
   test('rejects post with invalid timestamp format', () => {

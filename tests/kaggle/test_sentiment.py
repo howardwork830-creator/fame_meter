@@ -91,8 +91,7 @@ def validate_post_data(post: dict) -> bool:
         True if valid, False otherwise
     """
     required_fields = [
-        'Celebrity', 'Platform', 'Post_Content',
-        'Engagement_Metric', 'Post_Timestamp'
+        'Celebrity', 'Platform', 'Post_Content', 'Post_Timestamp'
     ]
     return all(field in post and post[field] for field in required_fields)
 
@@ -233,7 +232,6 @@ class TestValidatePostData:
             'Celebrity': 'Test Celebrity',
             'Platform': 'Instagram',
             'Post_Content': 'Test content',
-            'Engagement_Metric': 1000,
             'Post_Timestamp': '2026-01-30T10:00:00+08:00'
         }
         assert validate_post_data(post) is True
@@ -244,7 +242,6 @@ class TestValidatePostData:
             'Celebrity': 'Test Celebrity',
             'Platform': 'Instagram',
             # Missing Post_Content
-            'Engagement_Metric': 1000,
             'Post_Timestamp': '2026-01-30T10:00:00+08:00'
         }
         assert validate_post_data(post) is False
@@ -255,18 +252,6 @@ class TestValidatePostData:
             'Celebrity': 'Test Celebrity',
             'Platform': '',  # Empty
             'Post_Content': 'Test content',
-            'Engagement_Metric': 1000,
-            'Post_Timestamp': '2026-01-30T10:00:00+08:00'
-        }
-        assert validate_post_data(post) is False
-
-    def test_zero_engagement(self):
-        """Post with zero engagement should be invalid."""
-        post = {
-            'Celebrity': 'Test Celebrity',
-            'Platform': 'Instagram',
-            'Post_Content': 'Test content',
-            'Engagement_Metric': 0,
             'Post_Timestamp': '2026-01-30T10:00:00+08:00'
         }
         assert validate_post_data(post) is False

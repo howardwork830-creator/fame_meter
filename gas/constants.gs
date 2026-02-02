@@ -46,7 +46,7 @@ const TREND_EMOJIS = ["🚀", "↑", "→", "↓", "📉"];
 // =====================================================
 const RAW_DATA_HEADERS = [
   "Collection_Timestamp", "Celebrity", "Platform", "Account_Name",
-  "Post_Content", "Engagement_Metric", "Post_URL", "Post_Timestamp",
+  "Post_Content", "Post_URL", "Post_Timestamp",
   "Account_Type", "Feedback", "Feedback_Notes", "Sentiment_Score", "Processing_Date"
 ];
 

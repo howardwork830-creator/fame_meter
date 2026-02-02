@@ -82,14 +82,13 @@ function fetchTaiwanSocialMedia() {
             post.platform,                                           // C: Platform
             post.account_name,                                       // D: Account_Name
             post.content,                                            // E: Post_Content
-            post.engagement.likes || post.engagement.views || 0,     // F: Engagement_Metric
-            post.post_url,                                           // G: Post_URL
-            post.post_timestamp,                                     // H: Post_Timestamp
-            post.account_type || "unknown",                          // I: Account_Type
-            "",                                                      // J: Feedback (human fills via Dashboard)
-            "",                                                      // K: Feedback_Notes (human fills)
-            "",                                                      // L: Sentiment_Score (Kaggle fills)
-            ""                                                       // M: Processing_Date (Kaggle fills)
+            post.post_url,                                           // F: Post_URL
+            post.post_timestamp,                                     // G: Post_Timestamp
+            post.account_type || "unknown",                          // H: Account_Type
+            "",                                                      // I: Feedback (human fills via Dashboard)
+            "",                                                      // J: Feedback_Notes (human fills)
+            "",                                                      // K: Sentiment_Score (Kaggle fills)
+            ""                                                       // L: Processing_Date (Kaggle fills)
           ]);
 
           const startRow = sheet.getLastRow() + 1;
@@ -206,7 +205,6 @@ function bulkFetchAllCelebrities() {
             post.platform,
             post.account_name,
             post.content,
-            post.engagement.likes || post.engagement.views || 0,
             post.post_url,
             post.post_timestamp,
             post.account_type || "unknown",

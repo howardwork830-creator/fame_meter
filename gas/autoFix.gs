@@ -193,7 +193,7 @@ function fixResultsSheet() {
 /**
  * Auto-fix common issues in Raw Data sheet
  * - Normalize platform names
- * - Remove negative engagement values
+ * - Trim whitespace from text fields
  */
 function fixRawDataSheet() {
   const ui = SpreadsheetApp.getUi();
@@ -202,7 +202,6 @@ function fixRawDataSheet() {
     '🔧 Fix Raw Data Sheet',
     'This will automatically fix:\n' +
     '• Normalize platform names (instagram → Instagram)\n' +
-    '• Convert negative engagement to 0\n' +
     '• Trim whitespace from text fields\n\n' +
     'Continue?',
     ui.ButtonSet.YES_NO
@@ -228,11 +227,10 @@ function fixRawDataSheet() {
     // Use dynamic header lookup instead of hardcoded indices
     const headers = data[0];
     const platformIdx = headers.indexOf("Platform");
-    const engagementIdx = headers.indexOf("Engagement_Metric");
     const celebrityIdx = headers.indexOf("Celebrity");
 
-    if (platformIdx === -1 || engagementIdx === -1 || celebrityIdx === -1) {
-      ui.alert("Error: Required columns not found. Expected: Platform, Engagement_Metric, Celebrity");
+    if (platformIdx === -1 || celebrityIdx === -1) {
+      ui.alert("Error: Required columns not found. Expected: Platform, Celebrity");
       return;
     }
 
@@ -245,13 +243,6 @@ function fixRawDataSheet() {
       const platform = String(data[i][platformIdx] || "").trim().toLowerCase();
       if (PLATFORM_NAME_MAP[platform] && data[i][platformIdx] !== PLATFORM_NAME_MAP[platform]) {
         data[i][platformIdx] = PLATFORM_NAME_MAP[platform];
-        rowChanged = true;
-      }
-
-      // Fix negative engagement
-      const engagement = Number(data[i][engagementIdx]);
-      if (!isNaN(engagement) && engagement < 0) {
-        data[i][engagementIdx] = 0;
         rowChanged = true;
       }
 

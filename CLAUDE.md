@@ -152,7 +152,7 @@ The codebase has been modularized for easier debugging and maintenance:
   - `auditModelMetricsSheet()`, `auditSourceWeightsSheet()`, `auditSourceConfigSheet()`
 - `autoFix.gs` (~500 lines) - Automatic repair functions
   - `fixResultsSheet()` - Fix TRUE/FALSE → Yes/No, add trend emojis
-  - `fixRawDataSheet()` - Normalize platform names, fix negative engagement
+  - `fixRawDataSheet()` - Normalize platform names, trim whitespace
   - `fixSourceWeights()` - Add missing platforms
   - `fixRawDataHeaders()` - Correct header mismatches (labels only or reorder)
   - `reorderRawDataColumns()` - Move columns to correct positions based on headers
@@ -170,7 +170,7 @@ The codebase has been modularized for easier debugging and maintenance:
 
 ### Google Sheets Structure
 - **Config**: Settings (celebrities list, thresholds)
-- **Raw Data**: All posts with columns A-M (timestamps, content, engagement, feedback)
+- **Raw Data**: All posts with columns A-L (timestamps, content, feedback)
 - **Source Weights**: Platform weight scores (TikTok:10, Instagram:9, YouTube:8, Facebook:7, News:6)
 - **Source Config**: Per-source importance ratings (1-5 stars), auto-populated from Raw Data
 - **Results**: Daily rankings with confidence intervals

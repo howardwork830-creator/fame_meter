@@ -123,7 +123,6 @@ function auditRawDataSheet() {
     // Dynamic column lookup for data validation
     const celebrityIdx = headers.indexOf("Celebrity");
     const platformIdx = headers.indexOf("Platform");
-    const engagementIdx = headers.indexOf("Engagement_Metric");
     const feedbackIdx = headers.indexOf("Feedback");
     const postUrlIdx = headers.indexOf("Post_URL");
     const timestampIdx = headers.indexOf("Post_Timestamp");
@@ -146,10 +145,10 @@ function auditRawDataSheet() {
       }
     });
 
-    if (headers.length < 13) {
+    if (headers.length < 12) {
       result.issues.push({
         severity: "CRITICAL",
-        message: `Missing columns: expected 13, found ${headers.length}`
+        message: `Missing columns: expected 12, found ${headers.length}`
       });
     }
 
@@ -157,7 +156,6 @@ function auditRawDataSheet() {
     const seenUrls = new Set();
     let emptyCelebrities = 0;
     let invalidPlatforms = 0;
-    let negativeEngagements = 0;
     let invalidFeedback = 0;
     let duplicateUrls = 0;
     let invalidTimestamps = 0;
@@ -181,12 +179,6 @@ function auditRawDataSheet() {
             message: `Row ${rowNum}: Invalid platform "${platform}"`
           });
         }
-      }
-
-      // Check negative engagement (using dynamic index)
-      const engagement = engagementIdx >= 0 ? Number(row[engagementIdx]) : 0;
-      if (!isNaN(engagement) && engagement < 0) {
-        negativeEngagements++;
       }
 
       // Check valid feedback (using dynamic index)
@@ -230,13 +222,6 @@ function auditRawDataSheet() {
       result.issues.push({
         severity: "WARNING",
         message: `${invalidPlatforms} total rows have invalid platform values`
-      });
-    }
-
-    if (negativeEngagements > 0) {
-      result.issues.push({
-        severity: "CRITICAL",
-        message: `${negativeEngagements} rows have negative engagement numbers`
       });
     }
 

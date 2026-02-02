@@ -179,7 +179,7 @@ Build a **daily batch pipeline** that:
   "messages": [
     {
       "role": "user",
-      "content": `台灣名人社群媒體分析任務。\n\n找出關於 ${CELEBRITY_NAME} 的社群媒體提及（Instagram、Facebook、TikTok、YouTube）。\n找出使用者會發現的最熱門／最受關注的貼文。\n\n對每一個貼文，記錄：\n1. platform (平台)\n2. account (發文帳號)\n3. content (貼文完整內容)\n4. engagement_metrics (讚數、評論、分享、觀看)\n5. post_timestamp (貼文時間，UTC+8台灣時間)\n6. url (貼文連結)\n\n請回傳一個有效的 JSON 物件。格式如下（只回傳 JSON，沒有其他文字）:\n\n{\n  "celebrity_name": "${CELEBRITY_NAME}",\n  "data_collection_date": "${TODAY}",\n  "region": "Taiwan",\n  "posts": [\n    {\n      "platform": "Instagram",\n      "account_name": "@official",\n      "account_type": "official",\n      "content": "...",\n      "engagement": {\n        "likes": 125000,\n        "comments": 8500,\n        "shares": 2300\n      },\n      "post_timestamp": "2026-01-07T14:30:00+08:00",\n      "post_url": "https://..."\n    }\n  ]\n}`
+      "content": `台灣名人社群媒體分析任務。\n\n找出關於 ${CELEBRITY_NAME} 的社群媒體提及（Instagram、Facebook、TikTok、YouTube）。\n找出使用者會發現的最熱門／最受關注的貼文。\n\n對每一個貼文，記錄：\n1. platform (平台)\n2. account (發文帳號)\n3. content (貼文完整內容)\n4. post_timestamp (貼文時間，UTC+8台灣時間)\n5. url (貼文連結)\n\n請回傳一個有效的 JSON 物件。格式如下（只回傳 JSON，沒有其他文字）:\n\n{\n  "celebrity_name": "${CELEBRITY_NAME}",\n  "data_collection_date": "${TODAY}",\n  "region": "Taiwan",\n  "posts": [\n    {\n      "platform": "Instagram",\n      "account_name": "@official",\n      "account_type": "official",\n      "content": "...",\n      "post_timestamp": "2026-01-07T14:30:00+08:00",\n      "post_url": "https://..."\n    }\n  ]\n}`
     }
   ]
 }
@@ -275,19 +275,17 @@ TRAINING_DATA_MIN: 200 (minimum feedback samples for retraining)
 | C: Platform | Text | Instagram | GAS | Dropdown: Instagram, Facebook, TikTok, YouTube |
 | D: Account_Name | Text | @jolin.official | GAS | Extracted from API |
 | E: Post_Content | Text (Long) | 新專輯宣布... | GAS | Full post text |
-| F: Engagement_Metric | Number | 125000 | GAS | likes or views |
-| G: Post_URL | Hyperlink | https://instagram.com/... | GAS | Clickable link |
-| H: Post_Timestamp | DateTime (ISO 8601) | 2026-01-07T14:30:00+08:00 | GAS | UTC+8 time |
-| I: Account_Type | Text | official | GAS | official / fan |
-| **J: Feedback** | **Dropdown** | **Good** | **HUMAN (Dashboard)** | **Good / Bad / Skip** |
-| **K: Feedback_Notes** | **Text** | **Sarcasm not detected** | **HUMAN (Dashboard)** | **Reason for Bad** |
-| L: Sentiment_Score | Number | 0.87 | Kaggle | -1 to +1 |
-| M: Processing_Date | DateTime | 2026-01-07 07:15 | Kaggle | When processed |
+| F: Post_URL | Hyperlink | https://instagram.com/... | GAS | Clickable link |
+| G: Post_Timestamp | DateTime (ISO 8601) | 2026-01-07T14:30:00+08:00 | GAS | UTC+8 time |
+| H: Account_Type | Text | official | GAS | official / fan |
+| **I: Feedback** | **Dropdown** | **Good** | **HUMAN (Dashboard)** | **Good / Bad / Skip** |
+| **J: Feedback_Notes** | **Text** | **Sarcasm not detected** | **HUMAN (Dashboard)** | **Reason for Bad** |
+| K: Sentiment_Score | Number | 0.87 | Kaggle | -1 to +1 |
+| L: Processing_Date | DateTime | 2026-01-07 07:15 | Kaggle | When processed |
 
 **Data Validation:**
 - Platform: Dropdown (Instagram, Facebook, TikTok, YouTube)
 - Feedback: Dropdown (Good, Bad, Skip)
-- Engagement_Metric: Number > 0
 - Sentiment_Score: Number ∈ [-1, 1]
 
 ### 3.3 "Source Weights" Tab (Configuration)
@@ -406,7 +404,6 @@ function fetchTaiwanSocialMedia() {
             post.platform,
             post.account_name,
             post.content,
-            post.engagement.likes || post.engagement.views || 0,
             post.post_url,
             post.post_timestamp,
             post.account_type,
@@ -488,39 +485,33 @@ function queryPerplexityAPI(celebrity, apiKey) {
  * BUILD PERPLEXITY PROMPT
  */
 function buildPerplexityPrompt(celebrity) {
-  return `台灣名人社群媒體分析任務。\n\n找出關於 ${celebrity} 的社群媒體提及（Instagram、Facebook、TikTok、YouTube）。\n找出使用者會發現的最熱門／最受關注的貼文。\n\n對每一個貼文，記錄：\n1. platform (平台)\n2. account (發文帳號)\n3. content (貼文完整內容)\n4. engagement_metrics (讚數、評論、分享、觀看)\n5. post_timestamp (貼文時間，UTC+8台灣時間)\n6. url (貼文連結)\n\n請回傳一個有效的 JSON 物件。格式如下（只回傳 JSON，沒有其他文字）：\n\n{\n  "celebrity_name": "${celebrity}",\n  "data_collection_date": "${Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd')}",\n  "region": "Taiwan",\n  "posts": [\n    {\n      "platform": "Instagram",\n      "account_name": "@official",\n      "account_type": "official",\n      "content": "...",\n      "engagement": {\n        "likes": 125000,\n        "comments": 8500,\n        "shares": 2300\n      },\n      "post_timestamp": "2026-01-07T14:30:00+08:00",\n      "post_url": "https://..."\n    }\n  ]\n}`;
+  return `台灣名人社群媒體分析任務。\n\n找出關於 ${celebrity} 的社群媒體提及（Instagram、Facebook、TikTok、YouTube）。\n找出使用者會發現的最熱門／最受關注的貼文。\n\n對每一個貼文，記錄：\n1. platform (平台)\n2. account (發文帳號)\n3. content (貼文完整內容)\n4. post_timestamp (貼文時間，UTC+8台灣時間)\n5. url (貼文連結)\n\n請回傳一個有效的 JSON 物件。格式如下（只回傳 JSON，沒有其他文字）：\n\n{\n  "celebrity_name": "${celebrity}",\n  "data_collection_date": "${Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd')}",\n  "region": "Taiwan",\n  "posts": [\n    {\n      "platform": "Instagram",\n      "account_name": "@official",\n      "account_type": "official",\n      "content": "...",\n      "post_timestamp": "2026-01-07T14:30:00+08:00",\n      "post_url": "https://..."\n    }\n  ]\n}`;
 }
 
 /**
  * VALIDATE PERPLEXITY RESPONSE
  */
 function validatePerplexityResponse(posts, celebrity) {
-  const required_fields = ["platform", "account_name", "content", "engagement", 
+  const required_fields = ["platform", "account_name", "content",
                           "post_timestamp", "post_url"];
   const valid_platforms = ["Instagram", "Facebook", "TikTok", "YouTube"];
-  
+
   return posts.filter(post => {
     if (!required_fields.every(field => field in post)) {
       Logger.log(`Skipping post: missing required field`);
       return false;
     }
-    
+
     if (!valid_platforms.includes(post.platform)) {
       Logger.log(`Skipping post: invalid platform ${post.platform}`);
       return false;
     }
-    
-    const engagement = post.engagement.likes || post.engagement.views;
-    if (!engagement || engagement <= 0) {
-      Logger.log(`Skipping post: no valid engagement metric`);
-      return false;
-    }
-    
+
     if (!post.post_timestamp.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
       Logger.log(`Skipping post: invalid timestamp format`);
       return false;
     }
-    
+
     return true;
   });
 }
@@ -734,7 +725,6 @@ function getHtmlDashboard() {
       line-height: 1.6;
     }
     
-    .engagement { font-size: 12px; color: #666; margin-top: 10px; }
     .prediction { 
       font-size: 12px; 
       padding: 8px; 
@@ -884,8 +874,7 @@ function getHtmlDashboard() {
           </div>
           
           <div class="flashcard-content" id="post-content">-</div>
-          
-          <div class="engagement" id="post-engagement">-</div>
+
           <div class="prediction" id="post-prediction">-</div>
         </div>
         
@@ -987,7 +976,6 @@ function getHtmlDashboard() {
         document.getElementById('post-date').textContent = post.date;
         document.getElementById('post-id').textContent = post.id;
         document.getElementById('post-content').textContent = post.content;
-        document.getElementById('post-engagement').textContent = \`Engagement: \${post.engagement}\`;
         document.getElementById('post-prediction').textContent = \`Model: \${post.prediction} (\${post.prediction_score})\`;
         document.getElementById('badReason').value = '';
         
@@ -1086,16 +1074,15 @@ function getNextPost() {
   const data = rawSheet.getDataRange().getValues();
   
   for (let i = 1; i < data.length; i++) {
-    if (data[i][9] === '') {  // Feedback column is empty
+    if (data[i][8] === '') {  // Feedback column is empty (column I)
       return {
         id: i,
         platform: data[i][2],
         celebrity: data[i][1],
-        date: data[i][7],
+        date: data[i][6],  // Post_Timestamp is column G
         content: data[i][4],
-        engagement: data[i][5] + ' ' + (data[i][2] === 'TikTok' ? 'views' : 'likes'),
-        prediction: data[i][11] > 0 ? 'POSITIVE' : 'NEGATIVE',
-        prediction_score: Math.abs(data[i][11]).toFixed(2)
+        prediction: data[i][10] > 0 ? 'POSITIVE' : 'NEGATIVE',  // Sentiment_Score is column K
+        prediction_score: Math.abs(data[i][10]).toFixed(2)
       };
     }
   }
@@ -1109,9 +1096,9 @@ function getNextPost() {
 function saveFeedback(postId, feedback, reason) {
   const rawSheet = SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Raw Data");
-  
-  rawSheet.getRange(parseInt(postId) + 1, 10).setValue(feedback);  // Feedback column
-  rawSheet.getRange(parseInt(postId) + 1, 11).setValue(reason);   // Notes column
+
+  rawSheet.getRange(parseInt(postId) + 1, 9).setValue(feedback);  // Feedback column (I)
+  rawSheet.getRange(parseInt(postId) + 1, 10).setValue(reason);   // Notes column (J)
 }
 
 /**

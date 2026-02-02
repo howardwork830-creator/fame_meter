@@ -167,8 +167,8 @@ function getNewsFromRawData(rawData) {
         celebrity: celebrity,
         platform: rawData[i][2] || "",
         content: truncateContent(rawData[i][4] || "", 200),
-        date: rawData[i][7] ? formatDate(rawData[i][7]) : formatDate(rawData[i][0]),
-        url: rawData[i][6] || "#"
+        date: rawData[i][6] ? formatDate(rawData[i][6]) : formatDate(rawData[i][0]),
+        url: rawData[i][5] || "#"
       });
     }
   }
@@ -211,14 +211,14 @@ function getFeedbackFromRawData(rawData) {
   const unreviewedPosts = [];
 
   for (let i = 1; i < rawData.length; i++) {
-    const feedback = rawData[i][9];
+    const feedback = rawData[i][8];
 
     if (!feedback || feedback === '') {
       unreviewedPosts.push({
         id: i,
         platform: rawData[i][2] || "",
         celebrity: rawData[i][1] || "",
-        date: rawData[i][7] ? formatDate(rawData[i][7]) : formatDate(rawData[i][0]),
+        date: rawData[i][6] ? formatDate(rawData[i][6]) : formatDate(rawData[i][0]),
         content: rawData[i][4] || ""
       });
     }
@@ -260,8 +260,8 @@ function saveFeedback(postId, feedback, reason) {
     // Sanitize reason input (max 500 chars)
     const sanitizedReason = String(reason || '').substring(0, 500);
 
-    rawSheet.getRange(sheetRowNum, 10).setValue(feedback);  // Column J: Feedback
-    rawSheet.getRange(sheetRowNum, 11).setValue(sanitizedReason);    // Column K: Feedback_Notes
+    rawSheet.getRange(sheetRowNum, 9).setValue(feedback);  // Column I: Feedback
+    rawSheet.getRange(sheetRowNum, 10).setValue(sanitizedReason);    // Column J: Feedback_Notes
 
     Logger.log(`Saved feedback for row ${sheetRowNum}: ${feedback}`);
 
@@ -291,7 +291,7 @@ function saveFeedbackBatch(items) {
       const rowNum = parseInt(item.postId) + 1;
       if (rowNum > 1) {
         // Update both columns in one setValues call
-        rawSheet.getRange(rowNum, 10, 1, 2).setValues([[item.feedback, item.reason || '']]);
+        rawSheet.getRange(rowNum, 9, 1, 2).setValues([[item.feedback, item.reason || '']]);
       }
     });
 
@@ -339,7 +339,7 @@ function getProgressFromRawData(rawData) {
   const total = rawData.length - 1;
 
   for (let i = 1; i < rawData.length; i++) {
-    if (rawData[i][9] && rawData[i][9] !== '') {
+    if (rawData[i][8] && rawData[i][8] !== '') {
       reviewed++;
     }
   }
@@ -413,7 +413,7 @@ function getAnalyticsFromData(metricsSheet, rawData, accuracyThreshold) {
   let totalWithFeedback = 0;
 
   for (let i = 1; i < rawData.length; i++) {
-    const feedback = rawData[i][9];
+    const feedback = rawData[i][8];
     if (feedback === "Good") {
       goodCount++;
       totalWithFeedback++;

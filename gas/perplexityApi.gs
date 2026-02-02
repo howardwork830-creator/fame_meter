@@ -151,7 +151,6 @@ For each piece of content found, extract:
 - account_name: The account or source name
 - account_type: "official" if it's the celebrity's own account, "fan" for fan accounts, "media" for news outlets
 - content: Summary of the post content in Traditional Chinese (繁體中文)
-- engagement: Estimated engagement metrics (likes, comments, shares, views)
 - post_timestamp: Approximate date in ISO format
 - post_url: URL if available, otherwise use "#"
 
@@ -167,11 +166,6 @@ Return ONLY a valid JSON object with this exact structure:
       "account_name": "@example",
       "account_type": "official",
       "content": "內容摘要...",
-      "engagement": {
-        "likes": 10000,
-        "comments": 500,
-        "shares": 100
-      },
       "post_timestamp": "${today}T12:00:00+08:00",
       "post_url": "https://example.com"
     }
@@ -200,7 +194,7 @@ function validatePerplexityResponse(posts, celebrity) {
     return [];
   }
 
-  const requiredFields = ["platform", "account_name", "content", "engagement", "post_timestamp", "post_url"];
+  const requiredFields = ["platform", "account_name", "content", "post_timestamp", "post_url"];
 
   return posts.filter(post => {
     // Check required fields
@@ -213,16 +207,6 @@ function validatePerplexityResponse(posts, celebrity) {
     if (!VALID_PLATFORMS.includes(post.platform)) {
       Logger.log(`Skipping post: invalid platform ${post.platform}`);
       return false;
-    }
-
-    // Validate engagement metrics (allow zero, reject negative)
-    const engagement = post.engagement?.likes || post.engagement?.views || 0;
-    if (engagement < 0) {
-      Logger.log(`Skipping post: negative engagement metric`);
-      return false;
-    }
-    if (engagement === 0) {
-      Logger.log(`Warning: Zero engagement post for ${celebrity} (keeping for analysis)`);
     }
 
     // Validate timestamp format (basic check)
