@@ -9,8 +9,8 @@ Celebrity Popularity Quantifier (CPQ) - Taiwan Edition: A daily batch pipeline t
 **Architecture:**
 - **Data Ingestion**: Perplexity API fetches social media mentions (Instagram, Facebook, TikTok, YouTube)
 - **Orchestration**: Google Apps Script (GAS) triggers at 06:00 UTC+8
-- **Storage**: Google Sheets as primary database (Sheet ID: `1sgKkhqP0_WAzdBfBbH2oWLAav-WlGkbCyayLguaHG6Q`)
-- **ML Processing**: Kaggle Notebook with `uer/roberta-base-chinese-sentiment` model
+- **Storage**: Google Sheets as primary database (Sheet ID: `YOUR_SHEET_ID`)
+- **ML Processing**: Kaggle Notebook with `lxyuan/distilbert-base-multilingual-cased-sentiments-student` model
 - **Dashboard**: HTML5 + JavaScript embedded in GAS
 
 **Data Flow:**
@@ -48,6 +48,15 @@ cd kaggle && kaggle kernels push -p .
 cd kaggle && kaggle kernels pull <username>/sentiment-pipeline-v4
 ```
 
+### Running Tests
+```bash
+# Run Python tests (from project root)
+cd tests/kaggle && python -m pytest test_sentiment.py -v
+
+# Run JavaScript tests (requires Node.js)
+cd tests/gas && npm test
+```
+
 ### Testing GAS Functions
 In GAS editor (clasp open), run these functions manually:
 - `testPerplexityAPI()` - Test API connection
@@ -74,19 +83,84 @@ After deployment, a "CPQ Tools" menu appears in Sheets with:
 ## Key Components
 
 ### Google Apps Script Files (`gas/`)
-- `orchestrator.gs` - Main entry point, daily trigger, Perplexity API integration
-  - Entry: `fetchTaiwanSocialMedia()` - triggered daily
-  - Uses execution lock to prevent concurrent runs
-  - Batch writes to sheets for efficiency
-- `dashboard.gs` - Interactive HTML dashboard with 5 tabs
-  - Tab 1: 排名 (Rankings) - Daily celebrity rankings with trend indicators
-  - Tab 2: 📰 最新動態 (News) - Recent posts card grid, filterable by celebrity/platform
-  - Tab 3: ⭐ 評分 (Feedback) - Flashcard interface for labeling posts Good/Bad/Skip
-  - Tab 4: 📈 分析 (Analytics) - Model metrics, accuracy alerts, training data stats
-  - Tab 5: 🎯 來源評分 (Source Rating) - Star ratings (1-5) for individual sources
+
+The codebase has been modularized for easier debugging and maintenance:
+
+#### Core Orchestration
+- `orchestrator.gs` (~300 lines) - Main entry point and orchestration
+  - `fetchTaiwanSocialMedia()` - Daily trigger entry point
+  - `bulkFetchAllCelebrities()` - Bulk data collection
+  - `continueBulkFetch()` - Resume bulk operations
+  - `onOpen()` - Google Sheets custom menu
+
+#### Dashboard
+- `dashboard.gs` (~2,400 lines) - HTML5 dashboard template
   - `doGet()` - Web app entry point
   - `showDashboard()` - Modal dialog in Sheets
+  - `getHtmlDashboard()` - HTML/CSS/JS template with 5 tabs
+- `dashboardBackend.gs` (~600 lines) - Dashboard data functions
   - `getAllDashboardData()` - Single API call loads all data (5-min cache)
+  - `getResults()`, `getNewsData()`, `getSourcesData()`, `getAnalytics()`
+  - `saveFeedback()`, `saveFeedbackBatch()` - Feedback submission
+  - `saveSourceRating()`, `saveSourceRatingsBatch()` - Source ratings
+  - `generatePdfReport()` - PDF export (v5.0)
+  - `compareCelebrities()` - Celebrity comparison (v5.0)
+  - `getAccuracyHistory()` - Accuracy trend chart data (v5.0)
+
+#### Foundation Modules
+- `constants.gs` (~100 lines) - All shared constants
+  - `SHEET_ID`, `DASHBOARD_SHEET_ID`, `PERPLEXITY_API_URL`
+  - `VALID_PLATFORMS`, `DEFAULT_CELEBRITIES`, `TREND_EMOJIS`
+  - `MAX_EXECUTION_TIME_MS`, `API_RATE_LIMIT_MS` - Timing constants
+  - Column header schemas (`RAW_DATA_HEADERS`, `RESULTS_HEADERS`, etc.)
+- `config.gs` (~130 lines) - Configuration loading
+  - `loadConfig()` - Main config loader from Config sheet
+  - `loadDashboardConfig()` - Dashboard-specific config
+  - `loadSourceWeights()`, `loadSourceConfig()`
+  - `getPerplexityApiKey()` - API key from Script Properties
+- `sheetHelpers.gs` (~150 lines) - Sheet utility functions
+  - `getSheetSafe()` - Safe sheet access with error handling
+  - `findColumnIndex()` - Dynamic column lookup by header
+  - `initializeSheets()` - Create all required sheets
+  - `truncateContent()`, `formatDate()`, `escapeHtml()`
+
+#### API & Data Processing
+- `perplexityApi.gs` (~200 lines) - Perplexity API integration
+  - `queryPerplexityAPI()` - API query with retry logic
+  - `buildPerplexityPrompt()` - Prompt construction in Traditional Chinese
+  - `validatePerplexityResponse()` - Response validation
+- `deduplication.gs` (~200 lines) - Duplicate detection
+  - `generatePostKey()` - Unique key generation (URL or content fingerprint)
+  - `loadExistingPostKeys()` - Load existing keys for comparison
+  - `deduplicatePosts()` - Filter duplicates before insertion
+  - `deduplicateExistingData()` - Remove duplicates from Raw Data (with UI)
+  - `deduplicateRawDataSilent()` - Silent deduplication for scripts
+
+#### Maintenance & Monitoring
+- `logging.gs` (~80 lines) - Logging and alerts
+  - `updateLogSheet()` - Write to Model Metrics sheet
+  - `sendErrorAlert()` - Email alerts for critical errors
+- `triggers.gs` (~60 lines) - Trigger management
+  - `setupDailyTrigger()` - Create 06:00 UTC+8 trigger
+  - `deleteAllTriggers()`, `listTriggers()`
+- `sourceSync.gs` (~250 lines) - Source synchronization
+  - `syncSourcesToConfig()` - Auto-discover sources from Raw Data
+  - `syncCelebritiesToConfig()` - Sync celebrity list with data
+- `audit.gs` (~900 lines) - Pre-presentation data validation
+  - `runFullAudit()` - Main audit function (CPQ Tools menu)
+  - `auditRawDataSheet()`, `auditResultsSheet()`, `auditConfigSheet()`
+  - `auditModelMetricsSheet()`, `auditSourceWeightsSheet()`, `auditSourceConfigSheet()`
+- `autoFix.gs` (~500 lines) - Automatic repair functions
+  - `fixResultsSheet()` - Fix TRUE/FALSE → Yes/No, add trend emojis
+  - `fixRawDataSheet()` - Normalize platform names, fix negative engagement
+  - `fixSourceWeights()` - Add missing platforms
+  - `fixRawDataHeaders()` - Correct header mismatches (labels only or reorder)
+  - `reorderRawDataColumns()` - Move columns to correct positions based on headers
+  - `addMissingResultsColumns()` - Add v5.0 columns
+- `testing.gs` (~100 lines) - Test utilities
+  - `testPerplexityAPI()`, `testLoadConfig()`, `testSingleCelebrity()`
+  - `testSheetAccess()`, `testDeduplicationKeys()`
+  - `testFullPipelineDryRun()` - End-to-end test without writing
 
 ### Kaggle Notebook (`kaggle/`)
 - `sentiment_pipeline_v4.ipynb` - Sentiment analysis pipeline
@@ -97,11 +171,18 @@ After deployment, a "CPQ Tools" menu appears in Sheets with:
 ### Google Sheets Structure
 - **Config**: Settings (celebrities list, thresholds)
 - **Raw Data**: All posts with columns A-M (timestamps, content, engagement, feedback)
-- **Source Weights**: Platform weight scores (TikTok:10, Instagram:9, YouTube:8, Facebook:7)
+- **Source Weights**: Platform weight scores (TikTok:10, Instagram:9, YouTube:8, Facebook:7, News:6)
 - **Source Config**: Per-source importance ratings (1-5 stars), auto-populated from Raw Data
 - **Results**: Daily rankings with confidence intervals
 - **Feedback History**: Training dataset for model fine-tuning
 - **Model Metrics**: Audit trail (accuracy, precision, recall, F1)
+
+## v5.0 Features (2026-01-30)
+- **PDF Export**: One-click PDF report with rankings, metrics, and endorsement summary
+- **Celebrity Comparison**: Side-by-side modal comparing 2 celebrities with score bars, trends, platform breakdown
+- **Accuracy Trend Chart**: Google Charts integration showing last 7 runs with 85% threshold line
+- **Trend Velocity Indicators**: 🚀 Fast Rising / 📉 Fast Falling for significant changes (>15%)
+- **Source Attribution**: Top_Contributing_Source and Score_Change_Breakdown columns showing which platform drove score changes
 
 ## Key Thresholds
 - Model accuracy threshold: 85%
@@ -140,6 +221,43 @@ After deployment, a "CPQ Tools" menu appears in Sheets with:
 - Dashboard batches feedback saves (debounced 3s) to reduce API calls
 - Kaggle notebook requires ≥10 labelled samples to report accuracy metrics; otherwise shows "N/A"
 - Model uses stratified train/test/val split to balance celebrity representation
+
+## JSON Field Formats
+
+**Source_Breakdown** (Results sheet column K):
+```json
+{
+  "Instagram": 0.75,
+  "Facebook": 0.62,
+  "YouTube": 0.81,
+  "TikTok": 0.58,
+  "News": 0.45
+}
+```
+Values represent average sentiment per platform (-1 to +1).
+
+**Score_Change_Breakdown** (Results sheet column Q):
+```json
+{
+  "Instagram": "+0.12",
+  "YouTube": "-0.05",
+  "dominant_source": "Instagram",
+  "total_change": "+0.07"
+}
+```
+Shows which platform drove score changes between runs.
+
+## Trend Direction Parsing
+
+| Emoji | Text | Threshold | CSS Class |
+|-------|------|-----------|-----------|
+| 🚀 | Fast Rising | >+15% | `fast-up` |
+| ↑ | Rising | +5% to +15% | `up` |
+| → | Stable | -5% to +5% | `stable` |
+| ↓ | Falling | -15% to -5% | `down` |
+| 📉 | Fast Falling | <-15% | `fast-down` |
+
+Dashboard parses trend strings to apply appropriate styling.
 
 ## Debugging Tips
 
