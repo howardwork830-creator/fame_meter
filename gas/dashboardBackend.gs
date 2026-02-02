@@ -20,7 +20,7 @@ function getAllDashboardData() {
     const ss = SpreadsheetApp.openById(DASHBOARD_SHEET_ID);
 
     // Load config for threshold values
-    const config = loadDashboardConfig(ss);
+    const config = loadDashboardConfigFromSheet(ss);
     const accuracyThreshold = (config.MODEL_ACCURACY_THRESHOLD || 0.85) * 100;
 
     // Single spreadsheet open - read all sheets once
@@ -360,7 +360,7 @@ function getAnalytics() {
     const ss = SpreadsheetApp.openById(DASHBOARD_SHEET_ID);
 
     // Load config to get accuracy threshold
-    const config = loadDashboardConfig(ss);
+    const config = loadDashboardConfigFromSheet(ss);
     const accuracyThreshold = (config.MODEL_ACCURACY_THRESHOLD || 0.85) * 100;
 
     const metricsSheet = ss.getSheetByName("Model Metrics");
@@ -849,15 +849,16 @@ function compareCelebrities(celebrity1, celebrity2) {
 }
 
 // =====================================================
-// DASHBOARD CONFIG LOADER
+// DASHBOARD CONFIG LOADER (Sheet-based)
 // =====================================================
 
 /**
  * Load dashboard configuration from Config sheet
+ * Note: Named loadDashboardConfigFromSheet to avoid collision with loadDashboardConfig in config.gs
  * @param {Spreadsheet} ss - Optional spreadsheet object (to avoid re-opening)
  * @returns {Object} Configuration object with thresholds
  */
-function loadDashboardConfig(ss) {
+function loadDashboardConfigFromSheet(ss) {
   try {
     const spreadsheet = ss || SpreadsheetApp.openById(DASHBOARD_SHEET_ID);
     const configSheet = spreadsheet.getSheetByName("Config");

@@ -1,0 +1,21 @@
+# CPQ Kaggle Notebook Dependencies
+# Install with: pip install -r requirements.txt
+
+# ML & NLP
+transformers>=4.30.0
+torch>=2.0.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# ML Evaluation
+scikit-learn>=1.3.0
+
+# Google Sheets Integration
+gspread>=5.10.0
+google-auth>=2.22.0
+oauth2client>=4.1.3
+
+# Testing (development only)
+pytest>=7.4.0

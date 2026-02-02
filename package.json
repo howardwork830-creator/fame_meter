@@ -1,0 +1,28 @@
+{
+  "name": "cpq-taiwan",
+  "version": "5.0.0",
+  "description": "Celebrity Popularity Quantifier - Taiwan Edition",
+  "private": true,
+  "scripts": {
+    "test": "cd tests/gas && npm test",
+    "push": "cd gas && clasp push",
+    "pull": "cd gas && clasp pull",
+    "open": "cd gas && clasp open",
+    "logs": "cd gas && clasp logs"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.4.2"
+  },
+  "keywords": [
+    "celebrity",
+    "popularity",
+    "sentiment-analysis",
+    "taiwan",
+    "google-apps-script"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

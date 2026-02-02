@@ -131,16 +131,53 @@ cd kaggle && kaggle kernels push -p .
 
 ## Results Schema
 
-Key output columns in Results sheet:
-- `Rank`: Daily ranking position
-- `Celebrity`: Celebrity name
-- `Weighted_Popularity_Score`: Main KPI
-- `Confidence_Score`: Model accuracy %
-- `Trend_Direction`: 🚀/↑/→/↓/📉
-- `Endorsement_Ready`: Yes/No
-- `Risk_Flag`: Yes if >20% drop
-- `Top_Contributing_Source`: Platform driving change (v5.0)
-- `Score_Change_Breakdown`: Delta by platform JSON (v5.0)
+All 19 columns in Results sheet (matching RESULTS_HEADERS in constants.gs):
+
+| Column | Description |
+|--------|-------------|
+| `Rank` | Daily ranking position |
+| `Celebrity` | Celebrity name |
+| `Avg_Sentiment_Raw` | Raw average sentiment score (-1 to +1) |
+| `Total_Posts_Analyzed` | Number of posts analyzed |
+| `Sentiment_StdDev` | Sentiment standard deviation (volatility) |
+| `Weighted_Popularity_Score` | Main KPI (weighted score) |
+| `Confidence_Score` | Model confidence % |
+| `Score_Range` | Min-max score range |
+| `Model_Accuracy` | Model accuracy for this celebrity |
+| `Trend_Direction` | 🚀/↑/→/↓/📉 |
+| `Source_Breakdown` | JSON: sentiment by platform |
+| `Top_Source` | Platform with highest sentiment |
+| `Good_Records_Ratio` | Ratio of "Good" feedback |
+| `Risk_Flag` | Yes if >20% drop |
+| `Endorsement_Ready` | Yes/No |
+| `Top_Contributing_Source` | Platform driving change (v5.0) |
+| `Score_Change_Breakdown` | Delta by platform JSON (v5.0) |
+| `Last_Updated` | Timestamp of last update |
+| `Analysis_Notes` | Additional notes/flags |
+
+## Testing
+
+```bash
+# Run Python unit tests
+cd tests/kaggle && python -m pytest test_sentiment.py -v
+
+# Run JavaScript tests (requires Node.js)
+cd tests/gas && npm test
+```
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
+## Security
+
+### Best Practices
+- **API Keys**: Store in GAS Script Properties, never commit to repository
+- **Service Account**: Use minimal required permissions (Sheets API only)
+- **Web App Access**: Configure appropriate access level in `appsscript.json`
+- **Data Privacy**: Raw social media data should not contain PII beyond public posts
+
+### Configuration
+- GAS webapp access is configurable: `ANYONE_ANONYMOUS` (public) or `ANYONE` (Google login required)
+- Sheet ID should be kept private (use environment variables or Script Properties)
 
 ## Documentation
 

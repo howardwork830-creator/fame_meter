@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-validate:
+    name: Lint and Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON configuration files..."
+          for file in $(find . -name "*.json" -not -path "./node_modules/*" -not -path "./.git/*"); do
+            echo "Checking $file"
+            python3 -c "import json; json.load(open('$file'))" || exit 1
+          done
+          echo "All JSON files are valid"
+
+      - name: Check for sensitive data
+        run: |
+          echo "Checking for exposed secrets..."
+          # Check for potential API keys or credentials in tracked files
+          if grep -r "PERPLEXITY_API_KEY.*=" --include="*.md" --include="*.json" --include="*.js" --include="*.py" . 2>/dev/null | grep -v "PropertiesService\|getProperty\|get_secret\|placeholder\|YOUR_"; then
+            echo "Warning: Potential exposed API key found"
+            exit 1
+          fi
+          echo "No exposed secrets found"
+
+  python-tests:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-validate
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pandas numpy
+
+      - name: Run Python tests
+        run: |
+          cd tests/kaggle
+          python -m pytest test_sentiment.py -v --tb=short
+
+  javascript-tests:
+    name: JavaScript Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-validate
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd tests/gas
+          npm install
+
+      - name: Run JavaScript tests
+        run: |
+          cd tests/gas
+          npm test
+
+  docs-check:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check documentation consistency
+        run: |
+          echo "Checking model name consistency across docs..."
+
+          # Define the correct model name
+          CORRECT_MODEL="lxyuan/distilbert-base-multilingual-cased-sentiments-student"
+
+          # Check for old model name that should not exist
+          OLD_MODEL="uer/roberta-base-chinese-sentiment"
+
+          if grep -r "$OLD_MODEL" --include="*.md" . 2>/dev/null; then
+            echo "Error: Found outdated model reference: $OLD_MODEL"
+            echo "Should be: $CORRECT_MODEL"
+            exit 1
+          fi
+
+          echo "Documentation consistency check passed"
+
+      - name: Check for exposed Sheet IDs
+        run: |
+          echo "Checking for exposed Google Sheet IDs..."
+
+          # Pattern for Google Sheet IDs (44 character alphanumeric with underscores/hyphens)
+          if grep -rE "[a-zA-Z0-9_-]{44}" --include="*.md" . 2>/dev/null | grep -v "YOUR_SHEET_ID\|placeholder"; then
+            echo "Warning: Potential exposed Sheet ID found in documentation"
+            # Don't fail, just warn - some IDs might be examples
+          fi
+
+          echo "Sheet ID check completed"

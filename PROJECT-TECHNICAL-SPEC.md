@@ -27,7 +27,7 @@ Build a **daily batch pipeline** that:
 - **Data Storage:** Google Sheets (primary database)
 - **Auth:** Google Cloud Service Account (OAuth 2.0)
 - **ML Processing:** Kaggle Notebook (Python 3.10, free GPU)
-- **Models:** `uer/roberta-base-chinese-sentiment` (Hugging Face)
+- **Models:** `lxyuan/distilbert-base-multilingual-cased-sentiments-student` (Hugging Face)
 - **ML Pipeline:** scikit-learn (train/test/validation split, model evaluation)
 - **Dashboard:** HTML5 + JavaScript (embedded in Google Sheets via GAS)
 - **Feedback:** Interactive flashcard UI → training dataset for fine-tuning
@@ -258,7 +258,7 @@ SHEET_ID: [Google Sheet ID]
 FETCH_TIME_UTC: 06:00
 KAGGLE_RUN_TIME_UTC: 07:00
 DATA_RETENTION_DAYS: 30
-SENTIMENT_MODEL: uer/roberta-base-chinese-sentiment
+SENTIMENT_MODEL: lxyuan/distilbert-base-multilingual-cased-sentiments-student
 MODEL_ACCURACY_THRESHOLD: 0.85 (alert if below)
 CONFIDENCE_THRESHOLD: 0.70 (endorsement ready if above)
 SENTIMENT_STDDEV_MAX: 0.25 (volatility threshold)
@@ -372,6 +372,8 @@ TRAINING_DATA_MIN: 200 (minimum feedback samples for retraining)
 ---
 
 ## 4. Google Apps Script Implementation (v4.0)
+
+> **Note:** The code examples below are illustrative pseudocode showing the intended logic. See actual implementation in `gas/` directory.
 
 ### 4.1 File: `orchestrator.gs` (Enhanced)
 
@@ -1165,6 +1167,8 @@ function showDashboard() {
 
 ## 5. Kaggle Notebook Implementation (v4.0 – Production ML Pipeline)
 
+> **Note:** The code examples below are illustrative pseudocode showing the intended logic. See actual implementation in `kaggle/` directory.
+
 ### 5.1 File: `sentiment_pipeline_v4.ipynb`
 
 **Runtime:** Python 3.10, Free GPU (P100), ~20 min per run
@@ -1225,10 +1229,10 @@ df_raw = pd.DataFrame(raw_data)
 print(f"✓ Loaded {len(df_raw)} total posts")
 
 # CELL 5: LOAD SENTIMENT MODEL
-print("Loading sentiment model: uer/roberta-base-chinese-sentiment...")
+print("Loading sentiment model: lxyuan/distilbert-base-multilingual-cased-sentiments-student...")
 sentiment_pipeline = pipeline(
     "sentiment-analysis",
-    model="uer/roberta-base-chinese-sentiment",
+    model="lxyuan/distilbert-base-multilingual-cased-sentiments-student",
     device=0  # GPU
 )
 print("✓ Model loaded")
