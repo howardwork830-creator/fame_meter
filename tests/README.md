@@ -1,79 +1,79 @@
-# CPQ Testing Documentation
+# CPQ 測試文件
 
-This directory contains tests for the Celebrity Popularity Quantifier (CPQ) project.
+此目錄包含名人聲量分析系統 (CPQ) 專案的測試。
 
-## Directory Structure
+## 目錄結構
 
 ```
 tests/
-├── README.md           # This file
+├── README.md           # 本檔案
 ├── gas/
-│   └── test_orchestrator.js  # GAS function unit tests
+│   └── test_orchestrator.js  # GAS 函式單元測試
 └── kaggle/
-    └── test_sentiment.py     # Sentiment pipeline unit tests
+    └── test_sentiment.py     # 情感分析管道單元測試
 ```
 
-## Running Tests
+## 執行測試
 
-### Python Tests (Kaggle Pipeline)
+### Python 測試（Kaggle 管道）
 
-**Prerequisites:**
+**前置需求:**
 - Python 3.10+
 - pytest
 
-**Install dependencies:**
+**安裝相依套件:**
 ```bash
 pip install pytest pandas numpy
 ```
 
-**Run tests:**
+**執行測試:**
 ```bash
 cd tests/kaggle
 python -m pytest test_sentiment.py -v
 ```
 
-### JavaScript Tests (GAS Functions)
+### JavaScript 測試（GAS 函式）
 
-**Prerequisites:**
+**前置需求:**
 - Node.js 18+
 - npm
 
-**Install dependencies:**
+**安裝相依套件:**
 ```bash
 cd tests/gas
 npm install
 ```
 
-**Run tests:**
+**執行測試:**
 ```bash
 npm test
 ```
 
-## Test Coverage
+## 測試覆蓋率
 
-### GAS Tests (`test_orchestrator.js`)
-- `validatePerplexityResponse()` - Response validation with mock data
-- `parsePostTimestamp()` - Timestamp parsing edge cases
-- `loadConfig()` - Configuration loading validation
+### GAS 測試 (`test_orchestrator.js`)
+- `validatePerplexityResponse()` - 使用模擬資料的回應驗證
+- `parsePostTimestamp()` - 時間戳記解析邊界案例
+- `loadConfig()` - 設定載入驗證
 
-### Kaggle Tests (`test_sentiment.py`)
-- Sentiment score normalization (-1 to +1 range)
-- Trend direction calculation
-- Endorsement readiness calculation
-- Data validation functions
+### Kaggle 測試 (`test_sentiment.py`)
+- 情感分數正規化 (-1 到 +1 範圍)
+- 趨勢方向計算
+- 代言準備度計算
+- 資料驗證函式
 
-## Writing New Tests
+## 撰寫新測試
 
-### GAS Tests
-Use the mock framework provided in `test_orchestrator.js`. Mock the `SpreadsheetApp` and `UrlFetchApp` services.
+### GAS 測試
+使用 `test_orchestrator.js` 中提供的模擬框架。模擬 `SpreadsheetApp` 和 `UrlFetchApp` 服務。
 
-### Kaggle Tests
-Use pytest fixtures for common test data. Test functions should be prefixed with `test_`.
+### Kaggle 測試
+使用 pytest fixtures 設定常用測試資料。測試函式名稱應以 `test_` 為前綴。
 
-## CI Integration
+## CI 整合
 
-Tests are automatically run on:
-- Push to `main` branch
-- Pull requests to `main` branch
+測試會在以下情況自動執行：
+- 推送至 `main` 分支
+- 對 `main` 分支發起 Pull Request
 
-See `.github/workflows/ci.yml` for CI configuration.
+CI 設定請參閱 `.github/workflows/ci.yml`。

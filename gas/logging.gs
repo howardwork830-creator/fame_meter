@@ -15,31 +15,31 @@
  */
 function updateLogSheet(summary) {
   try {
-    let metricsSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Model Metrics");
+    let metricsSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.MODEL_METRICS);
 
     if (!metricsSheet) {
       // Create the sheet if it doesn't exist
       const ss = SpreadsheetApp.openById(SHEET_ID);
-      metricsSheet = ss.insertSheet("Model Metrics");
+      metricsSheet = ss.insertSheet(SHEET_NAMES.MODEL_METRICS);
       metricsSheet.appendRow(MODEL_METRICS_HEADERS);
     }
 
-    const runId = `fetch_${Utilities.formatDate(new Date(), 'GMT+8', 'yyyyMMdd_HHmmss')}`;
+    const runId = "fetch_" + Utilities.formatDate(new Date(), 'GMT+8', 'yyyyMMdd_HHmmss');
 
     metricsSheet.appendRow([
       summary.timestamp,
       runId,
       summary.total_posts,
       "", "", "", "", "", "", "",
-      "FETCH_COMPLETE",
+      "擷取完成",
       summary.celebrities_processed,
       "",
-      summary.errors === "None" ? "SUCCESS" : "WARNING",
+      summary.errors === "None" ? "成功" : "警告",
       summary.errors
     ]);
 
   } catch (e) {
-    Logger.log(`Failed to update log sheet: ${e.message}`);
+    Logger.log("更新記錄工作表失敗: " + e.message);
   }
 }
 

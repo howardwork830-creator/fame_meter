@@ -46,7 +46,7 @@ function fetchTaiwanSocialMedia() {
       throw new Error("PERPLEXITY_API_KEY not found in Script Properties");
     }
 
-    const sheet = getSheetSafe(SHEET_ID, "Raw Data");
+    const sheet = getSheetSafe(SHEET_ID, SHEET_NAMES.RAW_DATA);
 
     // Load existing posts for deduplication
     const existingKeys = loadExistingPostKeys();
@@ -168,7 +168,7 @@ function bulkFetchAllCelebrities() {
       throw new Error("PERPLEXITY_API_KEY not found in Script Properties");
     }
 
-    const sheet = getSheetSafe(SHEET_ID, "Raw Data");
+    const sheet = getSheetSafe(SHEET_ID, SHEET_NAMES.RAW_DATA);
 
     // Load existing posts for deduplication
     const existingKeys = loadExistingPostKeys();
@@ -287,28 +287,28 @@ function continueBulkFetch() {
  */
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
-  ui.createMenu('🎬 CPQ Tools')
-    .addItem('📋 Run Full Audit', 'runFullAudit')
+  ui.createMenu('🎬 CPQ 工具')
+    .addItem('📋 執行完整稽核', 'runFullAudit')
     .addSeparator()
-    .addItem('🔧 Fix Raw Data Issues', 'fixRawDataSheet')
-    .addItem('🔧 Fix Results Issues', 'fixResultsSheet')
-    .addItem('🔧 Add Missing Results Columns', 'addMissingResultsColumns')
-    .addItem('🔧 Fix Source Weights (Add News)', 'fixSourceWeights')
-    .addItem('🔧 Fix Raw Data Headers', 'fixRawDataHeaders')
-    .addItem('🔄 Reorder Raw Data Columns', 'reorderRawDataColumns')
+    .addItem('🔧 修復原始資料問題', 'fixRawDataSheet')
+    .addItem('🔧 修復結果問題', 'fixResultsSheet')
+    .addItem('🔧 新增缺少的結果欄位', 'addMissingResultsColumns')
+    .addItem('🔧 修復來源權重 (新增新聞)', 'fixSourceWeights')
+    .addItem('🔧 修復原始資料標題', 'fixRawDataHeaders')
+    .addItem('🔄 重新排列原始資料欄位', 'reorderRawDataColumns')
     .addSeparator()
-    .addItem('🔄 Run Bulk Fetch', 'bulkFetchAllCelebrities')
-    .addItem('🧹 Remove Duplicates', 'deduplicateExistingData')
-    .addItem('📊 Sync Sources', 'syncSourcesToConfig')
-    .addItem('👥 Sync Celebrities', 'syncCelebritiesToConfig')
+    .addItem('🔄 執行批次擷取', 'bulkFetchAllCelebrities')
+    .addItem('🧹 移除重複資料', 'deduplicateExistingData')
+    .addItem('📊 同步來源', 'syncSourcesToConfig')
+    .addItem('👥 同步名人', 'syncCelebritiesToConfig')
     .addSeparator()
-    .addItem('⚙️ Initialize Sheets', 'initializeSheets')
-    .addItem('🕐 Setup Daily Trigger', 'setupDailyTrigger')
-    .addItem('📋 Show Dashboard', 'showDashboard')
+    .addItem('⚙️ 初始化工作表', 'initializeSheets')
+    .addItem('🕐 設定每日觸發器', 'setupDailyTrigger')
+    .addItem('📋 顯示儀表板', 'showDashboard')
     .addSeparator()
-    .addItem('🤖 Run Sentiment Analysis', 'triggerKaggleSentimentAnalysis')
-    .addItem('📊 Check Kaggle Status', 'checkKaggleKernelStatus')
+    .addItem('🤖 執行情感分析', 'triggerKaggleSentimentAnalysis')
+    .addItem('📊 檢查 Kaggle 狀態', 'checkKaggleKernelStatus')
     .addSeparator()
-    .addItem('🔄 Reboot', 'reboot')
+    .addItem('🔄 系統重置', 'reboot')
     .addToUi();
 }

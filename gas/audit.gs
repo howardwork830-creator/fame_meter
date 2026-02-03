@@ -55,32 +55,32 @@ function runFullAudit() {
   Logger.log("========================================");
 
   // Show UI alert
-  const status = report.criticalIssues > 0 ? "❌ CRITICAL ISSUES FOUND" :
-                 report.warnings > 0 ? "⚠️ WARNINGS FOUND" :
-                 "✅ ALL CHECKS PASSED";
+  const status = report.criticalIssues > 0 ? "❌ 發現嚴重問題" :
+                 report.warnings > 0 ? "⚠️ 發現警告" :
+                 "✅ 所有檢查通過";
 
-  let message = `${status}\n\n`;
-  message += `Total Issues: ${report.totalIssues}\n`;
-  message += `Critical: ${report.criticalIssues}\n`;
-  message += `Warnings: ${report.warnings}\n\n`;
+  let message = status + "\n\n";
+  message += "問題總數: " + report.totalIssues + "\n";
+  message += "嚴重: " + report.criticalIssues + "\n";
+  message += "警告: " + report.warnings + "\n\n";
 
   if (report.totalIssues > 0) {
-    message += "Issues by sheet:\n";
+    message += "各工作表問題:\n";
     Object.entries(report.sheets).forEach(([name, data]) => {
       if (data.issues.length > 0) {
-        message += `\n• ${name}: ${data.issues.length} issues\n`;
+        message += "\n• " + name + ": " + data.issues.length + " 個問題\n";
         data.issues.slice(0, 3).forEach(issue => {
-          message += `  - [${issue.severity}] ${issue.message}\n`;
+          message += "  - [" + issue.severity + "] " + issue.message + "\n";
         });
         if (data.issues.length > 3) {
-          message += `  ... and ${data.issues.length - 3} more\n`;
+          message += "  ... 以及其他 " + (data.issues.length - 3) + " 個\n";
         }
       }
     });
-    message += "\nCheck Logger for full details.";
+    message += "\n查看記錄器以取得完整詳細資訊。";
   }
 
-  ui.alert("📋 Audit Report", message, ui.ButtonSet.OK);
+  ui.alert("📋 稽核報告", message, ui.ButtonSet.OK);
 
   return report;
 }
@@ -95,18 +95,18 @@ function runFullAudit() {
  */
 function auditRawDataSheet() {
   const result = {
-    sheetName: "Raw Data",
+    sheetName: SHEET_NAMES.RAW_DATA,
     status: "OK",
     rowCount: 0,
     issues: []
   };
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Raw Data");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
 
     if (!sheet) {
       result.status = "MISSING";
-      result.issues.push({ severity: "CRITICAL", message: "Raw Data sheet not found" });
+      result.issues.push({ severity: "嚴重", message: "找不到「" + SHEET_NAMES.RAW_DATA + "」工作表" });
       return result;
     }
 
@@ -114,23 +114,23 @@ function auditRawDataSheet() {
     result.rowCount = data.length - 1; // Exclude header
 
     if (data.length <= 1) {
-      result.issues.push({ severity: "WARNING", message: "Raw Data sheet is empty (no data rows)" });
+      result.issues.push({ severity: "警告", message: "「" + SHEET_NAMES.RAW_DATA + "」工作表是空的 (無資料列)" });
       return result;
     }
 
     const headers = data[0];
 
-    // Dynamic column lookup for data validation
-    const celebrityIdx = headers.indexOf("Celebrity");
-    const platformIdx = headers.indexOf("Platform");
-    const feedbackIdx = headers.indexOf("Feedback");
-    const postUrlIdx = headers.indexOf("Post_URL");
-    const timestampIdx = headers.indexOf("Post_Timestamp");
+    // Dynamic column lookup for data validation (繁體中文)
+    const celebrityIdx = headers.indexOf("名人");
+    const platformIdx = headers.indexOf("平台");
+    const feedbackIdx = headers.indexOf("回饋");
+    const postUrlIdx = headers.indexOf("貼文網址");
+    const timestampIdx = headers.indexOf("發布時間");
 
     if (celebrityIdx === -1 || platformIdx === -1 || postUrlIdx === -1) {
       result.issues.push({
-        severity: "CRITICAL",
-        message: "Required columns not found: Celebrity, Platform, or Post_URL"
+        severity: "嚴重",
+        message: "找不到必要欄位: 名人、平台 或 貼文網址"
       });
       return result;
     }
@@ -139,16 +139,16 @@ function auditRawDataSheet() {
     RAW_DATA_HEADERS.forEach((expected, idx) => {
       if (headers[idx] !== expected) {
         result.issues.push({
-          severity: "CRITICAL",
-          message: `Column ${String.fromCharCode(65 + idx)} header mismatch: expected "${expected}", got "${headers[idx] || '(empty)'}"`
+          severity: "嚴重",
+          message: "欄位 " + String.fromCharCode(65 + idx) + " 標題不符: 預期 \"" + expected + "\", 實際 \"" + (headers[idx] || '(空白)') + "\""
         });
       }
     });
 
     if (headers.length < 12) {
       result.issues.push({
-        severity: "CRITICAL",
-        message: `Missing columns: expected 12, found ${headers.length}`
+        severity: "嚴重",
+        message: "欄位不足: 預期 12 個, 實際 " + headers.length + " 個"
       });
     }
 
@@ -175,8 +175,8 @@ function auditRawDataSheet() {
         invalidPlatforms++;
         if (invalidPlatforms <= 3) {
           result.issues.push({
-            severity: "WARNING",
-            message: `Row ${rowNum}: Invalid platform "${platform}"`
+            severity: "警告",
+            message: "第 " + rowNum + " 列: 無效的平台 \"" + platform + "\""
           });
         }
       }
@@ -187,8 +187,8 @@ function auditRawDataSheet() {
         invalidFeedback++;
         if (invalidFeedback <= 3) {
           result.issues.push({
-            severity: "WARNING",
-            message: `Row ${rowNum}: Invalid feedback value "${feedback}"`
+            severity: "警告",
+            message: "第 " + rowNum + " 列: 無效的回饋值 \"" + feedback + "\""
           });
         }
       }
@@ -213,47 +213,47 @@ function auditRawDataSheet() {
     // Add summary issues
     if (emptyCelebrities > 0) {
       result.issues.push({
-        severity: "CRITICAL",
-        message: `${emptyCelebrities} rows have empty Celebrity names`
+        severity: "嚴重",
+        message: emptyCelebrities + " 列的名人欄位為空"
       });
     }
 
     if (invalidPlatforms > 3) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${invalidPlatforms} total rows have invalid platform values`
+        severity: "警告",
+        message: "共 " + invalidPlatforms + " 列有無效的平台值"
       });
     }
 
     if (invalidFeedback > 3) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${invalidFeedback} total rows have invalid feedback values`
+        severity: "警告",
+        message: "共 " + invalidFeedback + " 列有無效的回饋值"
       });
     }
 
     if (duplicateUrls > 0) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${duplicateUrls} duplicate post URLs found (run Remove Duplicates)`
+        severity: "警告",
+        message: "發現 " + duplicateUrls + " 個重複的貼文網址 (請執行「移除重複資料」)"
       });
     }
 
     if (invalidTimestamps > 0) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${invalidTimestamps} rows have invalid timestamp format (expected YYYY-MM-DD)`
+        severity: "警告",
+        message: invalidTimestamps + " 列的時間戳記格式無效 (預期 YYYY-MM-DD)"
       });
     }
 
-    result.status = result.issues.some(i => i.severity === "CRITICAL") ? "FAIL" :
+    result.status = result.issues.some(i => i.severity === "嚴重") ? "FAIL" :
                     result.issues.length > 0 ? "WARNING" : "OK";
 
-    Logger.log(`Raw Data audit: ${result.rowCount} rows, ${result.issues.length} issues`);
+    Logger.log("原始資料稽核: " + result.rowCount + " 列, " + result.issues.length + " 個問題");
 
   } catch (e) {
     result.status = "ERROR";
-    result.issues.push({ severity: "CRITICAL", message: `Audit error: ${e.message}` });
+    result.issues.push({ severity: "嚴重", message: "稽核錯誤: " + e.message });
   }
 
   return result;
@@ -269,18 +269,18 @@ function auditRawDataSheet() {
  */
 function auditResultsSheet() {
   const result = {
-    sheetName: "Results",
+    sheetName: SHEET_NAMES.RESULTS,
     status: "OK",
     rowCount: 0,
     issues: []
   };
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Results");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.RESULTS);
 
     if (!sheet) {
       result.status = "MISSING";
-      result.issues.push({ severity: "CRITICAL", message: "Results sheet not found" });
+      result.issues.push({ severity: "嚴重", message: "找不到「" + SHEET_NAMES.RESULTS + "」工作表" });
       return result;
     }
 
@@ -288,32 +288,32 @@ function auditResultsSheet() {
     result.rowCount = data.length - 1;
 
     if (data.length <= 1) {
-      result.issues.push({ severity: "WARNING", message: "Results sheet is empty" });
+      result.issues.push({ severity: "警告", message: "「" + SHEET_NAMES.RESULTS + "」工作表是空的" });
       return result;
     }
 
     const headers = data[0];
 
-    // Check key headers exist
-    const requiredHeaders = ["Rank", "Celebrity", "Weighted_Popularity_Score", "Trend_Direction", "Risk_Flag", "Endorsement_Ready"];
+    // Check key headers exist (繁體中文)
+    const requiredHeaders = ["排名", "名人", "加權聲量分數", "趨勢方向", "風險標記", "可代言"];
     requiredHeaders.forEach(header => {
       if (!headers.includes(header)) {
         result.issues.push({
-          severity: "CRITICAL",
-          message: `Missing required column: ${header}`
+          severity: "嚴重",
+          message: "缺少必要欄位: " + header
         });
       }
     });
 
-    // Find column indices
-    const rankIdx = headers.indexOf("Rank");
-    const scoreIdx = headers.indexOf("Weighted_Popularity_Score");
-    const sentimentIdx = headers.indexOf("Avg_Sentiment_Raw");
-    const trendIdx = headers.indexOf("Trend_Direction");
-    const sourceBreakdownIdx = headers.indexOf("Source_Breakdown");
-    const riskIdx = headers.indexOf("Risk_Flag");
-    const endorsementIdx = headers.indexOf("Endorsement_Ready");
-    const scoreChangeIdx = headers.indexOf("Score_Change_Breakdown");
+    // Find column indices (繁體中文)
+    const rankIdx = headers.indexOf("排名");
+    const scoreIdx = headers.indexOf("加權聲量分數");
+    const sentimentIdx = headers.indexOf("平均情感分數");
+    const trendIdx = headers.indexOf("趨勢方向");
+    const sourceBreakdownIdx = headers.indexOf("來源分析");
+    const riskIdx = headers.indexOf("風險標記");
+    const endorsementIdx = headers.indexOf("可代言");
+    const scoreChangeIdx = headers.indexOf("分數變化分析");
 
     let prevRank = 0;
     let rankGaps = 0;
@@ -334,8 +334,8 @@ function auditResultsSheet() {
           rankGaps++;
           if (rankGaps <= 2) {
             result.issues.push({
-              severity: "WARNING",
-              message: `Row ${rowNum}: Rank gap (expected ${prevRank + 1}, got ${rank})`
+              severity: "警告",
+              message: "第 " + rowNum + " 列: 排名間隔 (預期 " + (prevRank + 1) + ", 實際 " + rank + ")"
             });
           }
         }
@@ -355,8 +355,8 @@ function auditResultsSheet() {
         const sentiment = Number(row[sentimentIdx]);
         if (!isNaN(sentiment) && (sentiment < -1 || sentiment > 1)) {
           result.issues.push({
-            severity: "WARNING",
-            message: `Row ${rowNum}: Sentiment score ${sentiment} out of range (-1 to +1)`
+            severity: "警告",
+            message: "第 " + rowNum + " 列: 情感分數 " + sentiment + " 超出範圍 (-1 到 +1)"
           });
         }
       }
@@ -371,8 +371,8 @@ function auditResultsSheet() {
             invalidJson++;
             if (invalidJson <= 2) {
               result.issues.push({
-                severity: "WARNING",
-                message: `Row ${rowNum}: Invalid JSON in Source_Breakdown`
+                severity: "警告",
+                message: "第 " + rowNum + " 列: 來源分析欄位的 JSON 無效"
               });
             }
           }
@@ -406,8 +406,8 @@ function auditResultsSheet() {
           invalidRiskFlag++;
           if (invalidRiskFlag <= 2) {
             result.issues.push({
-              severity: "WARNING",
-              message: `Row ${rowNum}: Risk_Flag should be "Yes" or "No", got "${riskFlag}"`
+              severity: "警告",
+              message: "第 " + rowNum + " 列: 風險標記應為 \"Yes\" 或 \"No\", 實際為 \"" + riskFlag + "\""
             });
           }
         }
@@ -420,8 +420,8 @@ function auditResultsSheet() {
           invalidEndorsement++;
           if (invalidEndorsement <= 2) {
             result.issues.push({
-              severity: "WARNING",
-              message: `Row ${rowNum}: Endorsement_Ready should be "Yes" or "No", got "${endorsement}"`
+              severity: "警告",
+              message: "第 " + rowNum + " 列: 可代言應為 \"Yes\" 或 \"No\", 實際為 \"" + endorsement + "\""
             });
           }
         }
@@ -431,54 +431,54 @@ function auditResultsSheet() {
     // Add summary issues
     if (rankGaps > 2) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${rankGaps} total rank sequence gaps found`
+        severity: "警告",
+        message: "共發現 " + rankGaps + " 個排名序列間隔"
       });
     }
 
     if (invalidScores > 0) {
       result.issues.push({
-        severity: "CRITICAL",
-        message: `${invalidScores} rows have scores outside 0-1 range`
+        severity: "嚴重",
+        message: invalidScores + " 列的分數超出 0-1 範圍"
       });
     }
 
     if (invalidJson > 2) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${invalidJson} total invalid JSON fields found`
+        severity: "警告",
+        message: "共發現 " + invalidJson + " 個無效的 JSON 欄位"
       });
     }
 
     if (missingTrendEmoji > 0) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${missingTrendEmoji} rows missing trend emoji (🚀, ↑, →, ↓, 📉)`
+        severity: "警告",
+        message: missingTrendEmoji + " 列缺少趨勢表情符號 (🚀, ↑, →, ↓, 📉)"
       });
     }
 
     if (invalidRiskFlag > 2) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${invalidRiskFlag} total invalid Risk_Flag values (should be "Yes" or "No")`
+        severity: "警告",
+        message: "共 " + invalidRiskFlag + " 個無效的風險標記值 (應為 \"Yes\" 或 \"No\")"
       });
     }
 
     if (invalidEndorsement > 2) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${invalidEndorsement} total invalid Endorsement_Ready values`
+        severity: "警告",
+        message: "共 " + invalidEndorsement + " 個無效的可代言值"
       });
     }
 
-    result.status = result.issues.some(i => i.severity === "CRITICAL") ? "FAIL" :
+    result.status = result.issues.some(i => i.severity === "嚴重") ? "FAIL" :
                     result.issues.length > 0 ? "WARNING" : "OK";
 
-    Logger.log(`Results audit: ${result.rowCount} rows, ${result.issues.length} issues`);
+    Logger.log("結果稽核: " + result.rowCount + " 列, " + result.issues.length + " 個問題");
 
   } catch (e) {
     result.status = "ERROR";
-    result.issues.push({ severity: "CRITICAL", message: `Audit error: ${e.message}` });
+    result.issues.push({ severity: "嚴重", message: "稽核錯誤: " + e.message });
   }
 
   return result;
@@ -494,18 +494,18 @@ function auditResultsSheet() {
  */
 function auditConfigSheet() {
   const result = {
-    sheetName: "Config",
+    sheetName: SHEET_NAMES.CONFIG,
     status: "OK",
     rowCount: 0,
     issues: []
   };
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Config");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.CONFIG);
 
     if (!sheet) {
       result.status = "MISSING";
-      result.issues.push({ severity: "CRITICAL", message: "Config sheet not found" });
+      result.issues.push({ severity: "嚴重", message: "找不到「" + SHEET_NAMES.CONFIG + "」工作表" });
       return result;
     }
 
@@ -532,27 +532,27 @@ function auditConfigSheet() {
     requiredSettings.forEach(setting => {
       if (!(setting.name in config)) {
         result.issues.push({
-          severity: "CRITICAL",
-          message: `Missing required setting: ${setting.name}`
+          severity: "嚴重",
+          message: "缺少必要設定: " + setting.name
         });
       } else if (setting.type === "number") {
         const val = Number(config[setting.name]);
         if (isNaN(val)) {
           result.issues.push({
-            severity: "CRITICAL",
-            message: `${setting.name} must be a number, got "${config[setting.name]}"`
+            severity: "嚴重",
+            message: setting.name + " 必須為數字, 實際為 \"" + config[setting.name] + "\""
           });
         } else {
           if (setting.min !== undefined && val < setting.min) {
             result.issues.push({
-              severity: "WARNING",
-              message: `${setting.name} value ${val} is below minimum ${setting.min}`
+              severity: "警告",
+              message: setting.name + " 值 " + val + " 低於最小值 " + setting.min
             });
           }
           if (setting.max !== undefined && val > setting.max) {
             result.issues.push({
-              severity: "WARNING",
-              message: `${setting.name} value ${val} is above maximum ${setting.max}`
+              severity: "警告",
+              message: setting.name + " 值 " + val + " 高於最大值 " + setting.max
             });
           }
         }
@@ -564,22 +564,22 @@ function auditConfigSheet() {
       const celebrities = String(config.CELEBRITIES_TO_TRACK).split(",").map(s => s.trim()).filter(s => s);
       if (celebrities.length === 0) {
         result.issues.push({
-          severity: "CRITICAL",
-          message: "CELEBRITIES_TO_TRACK is empty"
+          severity: "嚴重",
+          message: "CELEBRITIES_TO_TRACK 是空的"
         });
       } else {
-        Logger.log(`Config: ${celebrities.length} celebrities configured`);
+        Logger.log("設定: 已設定 " + celebrities.length + " 位名人");
       }
     }
 
-    result.status = result.issues.some(i => i.severity === "CRITICAL") ? "FAIL" :
+    result.status = result.issues.some(i => i.severity === "嚴重") ? "FAIL" :
                     result.issues.length > 0 ? "WARNING" : "OK";
 
-    Logger.log(`Config audit: ${result.issues.length} issues`);
+    Logger.log("設定稽核: " + result.issues.length + " 個問題");
 
   } catch (e) {
     result.status = "ERROR";
-    result.issues.push({ severity: "CRITICAL", message: `Audit error: ${e.message}` });
+    result.issues.push({ severity: "嚴重", message: "稽核錯誤: " + e.message });
   }
 
   return result;
@@ -595,7 +595,7 @@ function auditConfigSheet() {
  */
 function auditModelMetricsSheet() {
   const result = {
-    sheetName: "Model Metrics",
+    sheetName: SHEET_NAMES.MODEL_METRICS,
     status: "OK",
     rowCount: 0,
     issues: []
@@ -606,11 +606,11 @@ function auditModelMetricsSheet() {
   const accuracyThreshold = (config.MODEL_ACCURACY_THRESHOLD || 0.85) * 100;
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Model Metrics");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.MODEL_METRICS);
 
     if (!sheet) {
       result.status = "MISSING";
-      result.issues.push({ severity: "WARNING", message: "Model Metrics sheet not found (will be created on first run)" });
+      result.issues.push({ severity: "警告", message: "找不到「" + SHEET_NAMES.MODEL_METRICS + "」工作表 (首次執行時會自動建立)" });
       return result;
     }
 
@@ -618,14 +618,14 @@ function auditModelMetricsSheet() {
     result.rowCount = data.length - 1;
 
     if (data.length <= 1) {
-      result.issues.push({ severity: "WARNING", message: "No model runs recorded yet" });
+      result.issues.push({ severity: "警告", message: "尚無模型執行記錄" });
       return result;
     }
 
     const headers = data[0];
-    const accuracyIdx = headers.indexOf("Training_Accuracy");
-    const modelStatusIdx = headers.indexOf("Model_Status");
-    const pipelineStatusIdx = headers.indexOf("Pipeline_Status");
+    const accuracyIdx = headers.indexOf("訓練準確度");
+    const modelStatusIdx = headers.indexOf("模型狀態");
+    const pipelineStatusIdx = headers.indexOf("流程狀態");
 
     // Check latest run (last row)
     const lastRow = data[data.length - 1];
@@ -635,8 +635,8 @@ function auditModelMetricsSheet() {
       const accuracy = String(lastRow[accuracyIdx] || "");
       if (accuracy && !accuracy.includes("%") && accuracy !== "N/A" && accuracy !== "") {
         result.issues.push({
-          severity: "WARNING",
-          message: `Latest accuracy value "${accuracy}" missing % symbol`
+          severity: "警告",
+          message: "最新準確度值 \"" + accuracy + "\" 缺少 % 符號"
         });
       }
 
@@ -644,42 +644,42 @@ function auditModelMetricsSheet() {
       const accNum = parseFloat(accuracy.replace("%", ""));
       if (!isNaN(accNum) && accNum < accuracyThreshold) {
         result.issues.push({
-          severity: "WARNING",
-          message: `Latest accuracy ${accuracy} is below ${accuracyThreshold}% threshold`
+          severity: "警告",
+          message: "最新準確度 " + accuracy + " 低於 " + accuracyThreshold + "% 門檻"
         });
       }
     }
 
     // Check model status
     if (modelStatusIdx >= 0) {
-      const modelStatus = String(lastRow[modelStatusIdx] || "").toUpperCase();
-      if (modelStatus && modelStatus !== "PASSED" && modelStatus !== "FETCH_COMPLETE") {
+      const modelStatus = String(lastRow[modelStatusIdx] || "");
+      if (modelStatus && modelStatus !== "通過" && modelStatus !== "擷取完成") {
         result.issues.push({
-          severity: "WARNING",
-          message: `Latest Model_Status is "${modelStatus}" (expected PASSED)`
+          severity: "警告",
+          message: "最新模型狀態為 \"" + modelStatus + "\" (預期為 通過)"
         });
       }
     }
 
     // Check pipeline status
     if (pipelineStatusIdx >= 0) {
-      const pipelineStatus = String(lastRow[pipelineStatusIdx] || "").toUpperCase();
-      if (pipelineStatus === "ERROR" || pipelineStatus === "FAILED") {
+      const pipelineStatus = String(lastRow[pipelineStatusIdx] || "");
+      if (pipelineStatus === "錯誤" || pipelineStatus === "失敗") {
         result.issues.push({
-          severity: "CRITICAL",
-          message: `Latest Pipeline_Status is "${pipelineStatus}"`
+          severity: "嚴重",
+          message: "最新流程狀態為 \"" + pipelineStatus + "\""
         });
       }
     }
 
-    result.status = result.issues.some(i => i.severity === "CRITICAL") ? "FAIL" :
+    result.status = result.issues.some(i => i.severity === "嚴重") ? "FAIL" :
                     result.issues.length > 0 ? "WARNING" : "OK";
 
-    Logger.log(`Model Metrics audit: ${result.rowCount} runs, ${result.issues.length} issues`);
+    Logger.log("模型指標稽核: " + result.rowCount + " 次執行, " + result.issues.length + " 個問題");
 
   } catch (e) {
     result.status = "ERROR";
-    result.issues.push({ severity: "CRITICAL", message: `Audit error: ${e.message}` });
+    result.issues.push({ severity: "嚴重", message: "稽核錯誤: " + e.message });
   }
 
   return result;
@@ -695,18 +695,18 @@ function auditModelMetricsSheet() {
  */
 function auditSourceWeightsSheet() {
   const result = {
-    sheetName: "Source Weights",
+    sheetName: SHEET_NAMES.SOURCE_WEIGHTS,
     status: "OK",
     rowCount: 0,
     issues: []
   };
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Source Weights");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_WEIGHTS);
 
     if (!sheet) {
       result.status = "MISSING";
-      result.issues.push({ severity: "WARNING", message: "Source Weights sheet not found" });
+      result.issues.push({ severity: "警告", message: "找不到「" + SHEET_NAMES.SOURCE_WEIGHTS + "」工作表" });
       return result;
     }
 
@@ -714,13 +714,13 @@ function auditSourceWeightsSheet() {
     result.rowCount = data.length - 1;
 
     if (data.length <= 1) {
-      result.issues.push({ severity: "WARNING", message: "Source Weights sheet is empty" });
+      result.issues.push({ severity: "警告", message: "「" + SHEET_NAMES.SOURCE_WEIGHTS + "」工作表是空的" });
       return result;
     }
 
     const headers = data[0];
-    const sourceIdx = headers.indexOf("Source");
-    const weightIdx = headers.indexOf("Weight_Score");
+    const sourceIdx = headers.indexOf("來源");
+    const weightIdx = headers.indexOf("權重分數");
 
     const foundPlatforms = new Set();
     const duplicates = [];
@@ -741,8 +741,8 @@ function auditSourceWeightsSheet() {
       // Check weight range (1-10)
       if (isNaN(weight) || weight < 1 || weight > 10) {
         result.issues.push({
-          severity: "WARNING",
-          message: `${source}: Weight ${weight} should be between 1-10`
+          severity: "警告",
+          message: source + ": 權重 " + weight + " 應介於 1-10 之間"
         });
       }
     }
@@ -751,27 +751,27 @@ function auditSourceWeightsSheet() {
     VALID_PLATFORMS.forEach(platform => {
       if (!foundPlatforms.has(platform)) {
         result.issues.push({
-          severity: "WARNING",
-          message: `Missing platform: ${platform}`
+          severity: "警告",
+          message: "缺少平台: " + platform
         });
       }
     });
 
     if (duplicates.length > 0) {
       result.issues.push({
-        severity: "WARNING",
-        message: `Duplicate platforms found: ${duplicates.join(", ")}`
+        severity: "警告",
+        message: "發現重複的平台: " + duplicates.join(", ")
       });
     }
 
-    result.status = result.issues.some(i => i.severity === "CRITICAL") ? "FAIL" :
+    result.status = result.issues.some(i => i.severity === "嚴重") ? "FAIL" :
                     result.issues.length > 0 ? "WARNING" : "OK";
 
-    Logger.log(`Source Weights audit: ${result.rowCount} rows, ${result.issues.length} issues`);
+    Logger.log("來源權重稽核: " + result.rowCount + " 列, " + result.issues.length + " 個問題");
 
   } catch (e) {
     result.status = "ERROR";
-    result.issues.push({ severity: "CRITICAL", message: `Audit error: ${e.message}` });
+    result.issues.push({ severity: "嚴重", message: "稽核錯誤: " + e.message });
   }
 
   return result;
@@ -787,18 +787,18 @@ function auditSourceWeightsSheet() {
  */
 function auditSourceConfigSheet() {
   const result = {
-    sheetName: "Source Config",
+    sheetName: SHEET_NAMES.SOURCE_CONFIG,
     status: "OK",
     rowCount: 0,
     issues: []
   };
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Source Config");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
 
     if (!sheet) {
       result.status = "MISSING";
-      result.issues.push({ severity: "WARNING", message: "Source Config sheet not found (run Sync Sources)" });
+      result.issues.push({ severity: "警告", message: "找不到「" + SHEET_NAMES.SOURCE_CONFIG + "」工作表 (請執行「同步來源」)" });
       return result;
     }
 
@@ -806,14 +806,14 @@ function auditSourceConfigSheet() {
     result.rowCount = data.length - 1;
 
     if (data.length <= 1) {
-      result.issues.push({ severity: "WARNING", message: "Source Config sheet is empty (run Sync Sources)" });
+      result.issues.push({ severity: "警告", message: "「" + SHEET_NAMES.SOURCE_CONFIG + "」工作表是空的 (請執行「同步來源」)" });
       return result;
     }
 
     const headers = data[0];
-    const sourceNameIdx = headers.indexOf("Source_Name");
-    const importanceIdx = headers.indexOf("Importance_Score");
-    const platformIdx = headers.indexOf("Platform");
+    const sourceNameIdx = headers.indexOf("來源名稱");
+    const importanceIdx = headers.indexOf("重要性分數");
+    const platformIdx = headers.indexOf("平台");
 
     const seenSources = new Set();
     let invalidImportance = 0;
@@ -843,26 +843,26 @@ function auditSourceConfigSheet() {
 
     if (duplicateSources > 0) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${duplicateSources} duplicate source entries found`
+        severity: "警告",
+        message: "發現 " + duplicateSources + " 個重複的來源項目"
       });
     }
 
     if (invalidImportance > 0) {
       result.issues.push({
-        severity: "WARNING",
-        message: `${invalidImportance} sources have invalid importance score (should be 1-5)`
+        severity: "警告",
+        message: invalidImportance + " 個來源的重要性分數無效 (應為 1-5)"
       });
     }
 
-    result.status = result.issues.some(i => i.severity === "CRITICAL") ? "FAIL" :
+    result.status = result.issues.some(i => i.severity === "嚴重") ? "FAIL" :
                     result.issues.length > 0 ? "WARNING" : "OK";
 
-    Logger.log(`Source Config audit: ${result.rowCount} sources, ${result.issues.length} issues`);
+    Logger.log("來源設定稽核: " + result.rowCount + " 個來源, " + result.issues.length + " 個問題");
 
   } catch (e) {
     result.status = "ERROR";
-    result.issues.push({ severity: "CRITICAL", message: `Audit error: ${e.message}` });
+    result.issues.push({ severity: "嚴重", message: "稽核錯誤: " + e.message });
   }
 
   return result;

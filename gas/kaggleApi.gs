@@ -69,56 +69,91 @@ function triggerKaggleSentimentAnalysis() {
 
 /**
  * Push/trigger the Kaggle kernel
+ * Two-step process: pull existing kernel, then push to trigger new run
  * @returns {Object} {success, versionNumber, error}
  */
 function pushKaggleKernel() {
   const creds = getKaggleCredentials();
 
   if (!creds.apiKey) {
-    return { success: false, error: 'KAGGLE_API_KEY not found in Script Properties' };
+    return { success: false, error: '在腳本屬性中找不到 KAGGLE_API_KEY' };
   }
 
-  // Build Basic Auth header
   const authString = Utilities.base64Encode(creds.username + ':' + creds.apiKey);
+  const authHeader = { 'Authorization': 'Basic ' + authString };
 
-  // Minimal payload to trigger existing kernel
-  const payload = {
-    id: KAGGLE_KERNEL_ID
-  };
-
-  const options = {
-    method: 'post',
-    headers: {
-      'Authorization': 'Basic ' + authString,
-      'Content-Type': 'application/json'
-    },
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true
-  };
-
+  // Step 1: Pull existing kernel to get metadata and source
   try {
-    const response = UrlFetchApp.fetch(KAGGLE_API_URL + '/kernels/push', options);
-    const code = response.getResponseCode();
-    const body = response.getContentText();
+    const pullUrl = KAGGLE_API_URL + '/kernels/pull?userName=' + creds.username +
+                    '&kernelSlug=celebrity-popularity-quantifier-taiwan';
 
-    Logger.log('Kaggle API response: ' + code + ' - ' + body);
+    const pullResponse = UrlFetchApp.fetch(pullUrl, {
+      method: 'get',
+      headers: authHeader,
+      muteHttpExceptions: true
+    });
 
-    if (code === 200) {
-      const data = JSON.parse(body);
+    if (pullResponse.getResponseCode() !== 200) {
+      return { success: false, error: '無法拉取筆記本: HTTP ' + pullResponse.getResponseCode() };
+    }
+
+    const kernelData = JSON.parse(pullResponse.getContentText());
+    const metadata = kernelData.metadata;
+    const sourceCode = kernelData.blob.source;
+
+    Logger.log('Pulled kernel v' + metadata.currentVersionNumber);
+
+    // Step 2: Push kernel back to trigger new run
+    const pushPayload = {
+      id: metadata.id,  // Use numeric ID
+      slug: metadata.slug,
+      title: metadata.title,
+      text: sourceCode,
+      language: metadata.language,
+      kernelType: metadata.kernelType,
+      isPrivate: metadata.isPrivate,
+      enableGpu: metadata.enableGpu,
+      enableTpu: metadata.enableTpu,
+      enableInternet: metadata.enableInternet,
+      datasetDataSources: metadata.datasetDataSources || [],
+      competitionDataSources: metadata.competitionDataSources || [],
+      kernelDataSources: metadata.kernelDataSources || [],
+      modelDataSources: metadata.modelDataSources || [],
+      categoryIds: metadata.categoryIds || []
+    };
+
+    const pushResponse = UrlFetchApp.fetch(KAGGLE_API_URL + '/kernels/push', {
+      method: 'post',
+      headers: {
+        'Authorization': 'Basic ' + authString,
+        'Content-Type': 'application/json'
+      },
+      payload: JSON.stringify(pushPayload),
+      muteHttpExceptions: true
+    });
+
+    const pushCode = pushResponse.getResponseCode();
+    const pushBody = pushResponse.getContentText();
+
+    Logger.log('Kaggle push response: ' + pushCode + ' - ' + pushBody);
+
+    if (pushCode === 200) {
+      const data = JSON.parse(pushBody);
       return {
         success: true,
         versionNumber: data.versionNumber,
         url: data.url
       };
-    } else if (code === 401) {
-      return { success: false, error: 'Invalid Kaggle credentials' };
-    } else if (code === 403) {
-      return { success: false, error: 'Access denied to kernel' };
+    } else if (pushCode === 401) {
+      return { success: false, error: '無效的 Kaggle 憑證' };
+    } else if (pushCode === 403) {
+      return { success: false, error: '無法存取筆記本' };
     } else {
-      return { success: false, error: 'HTTP ' + code + ': ' + body };
+      return { success: false, error: 'HTTP ' + pushCode + ': ' + pushBody };
     }
 
   } catch (e) {
+    Logger.log('Kaggle trigger error: ' + e.message);
     return { success: false, error: e.message };
   }
 }
@@ -158,7 +193,7 @@ function getKaggleKernelStatus() {
   const creds = getKaggleCredentials();
 
   if (!creds.apiKey) {
-    return { success: false, error: 'KAGGLE_API_KEY not found in Script Properties' };
+    return { success: false, error: '在腳本屬性中找不到 KAGGLE_API_KEY' };
   }
 
   const authString = Utilities.base64Encode(creds.username + ':' + creds.apiKey);

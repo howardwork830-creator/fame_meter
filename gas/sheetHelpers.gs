@@ -69,72 +69,72 @@ function getSheetHeaders(sheet) {
 function initializeSheets() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
 
-  // Raw Data sheet
-  let rawSheet = ss.getSheetByName("Raw Data");
+  // 原始資料工作表
+  let rawSheet = ss.getSheetByName(SHEET_NAMES.RAW_DATA);
   if (!rawSheet) {
-    rawSheet = ss.insertSheet("Raw Data");
+    rawSheet = ss.insertSheet(SHEET_NAMES.RAW_DATA);
     rawSheet.appendRow(RAW_DATA_HEADERS);
-    Logger.log("✓ Created 'Raw Data' sheet");
+    Logger.log("✓ 已建立「" + SHEET_NAMES.RAW_DATA + "」工作表");
   }
 
-  // Config sheet
-  let configSheet = ss.getSheetByName("Config");
+  // 設定工作表
+  let configSheet = ss.getSheetByName(SHEET_NAMES.CONFIG);
   if (!configSheet) {
-    configSheet = ss.insertSheet("Config");
+    configSheet = ss.insertSheet(SHEET_NAMES.CONFIG);
     configSheet.appendRow(CONFIG_HEADERS);
-    configSheet.appendRow(["CELEBRITIES_TO_TRACK", DEFAULT_CELEBRITIES.join(", "), "List of celebrity names to monitor", new Date()]);
-    configSheet.appendRow(["MODEL_ACCURACY_THRESHOLD", "0.85", "Alert if model accuracy below this", new Date()]);
-    configSheet.appendRow(["CONFIDENCE_THRESHOLD", "0.70", "Endorsement ready if above this", new Date()]);
-    configSheet.appendRow(["SENTIMENT_STDDEV_MAX", "0.25", "Maximum sentiment volatility", new Date()]);
-    configSheet.appendRow(["DATA_RETENTION_DAYS", "30", "Days to keep historical data", new Date()]);
-    configSheet.appendRow(["TRAINING_DATA_MIN", "200", "Minimum feedback samples for retraining", new Date()]);
-    Logger.log("✓ Created 'Config' sheet");
+    configSheet.appendRow(["CELEBRITIES_TO_TRACK", DEFAULT_CELEBRITIES.join(", "), "要追蹤的名人清單", new Date()]);
+    configSheet.appendRow(["MODEL_ACCURACY_THRESHOLD", "0.85", "模型準確度低於此值時發出警告", new Date()]);
+    configSheet.appendRow(["CONFIDENCE_THRESHOLD", "0.70", "可信度高於此值時可代言", new Date()]);
+    configSheet.appendRow(["SENTIMENT_STDDEV_MAX", "0.25", "最大情感波動度", new Date()]);
+    configSheet.appendRow(["DATA_RETENTION_DAYS", "30", "歷史資料保留天數", new Date()]);
+    configSheet.appendRow(["TRAINING_DATA_MIN", "200", "重新訓練所需最少回饋樣本數", new Date()]);
+    Logger.log("✓ 已建立「" + SHEET_NAMES.CONFIG + "」工作表");
   }
 
-  // Source Weights sheet
-  let weightsSheet = ss.getSheetByName("Source Weights");
+  // 來源權重工作表
+  let weightsSheet = ss.getSheetByName(SHEET_NAMES.SOURCE_WEIGHTS);
   if (!weightsSheet) {
-    weightsSheet = ss.insertSheet("Source Weights");
+    weightsSheet = ss.insertSheet(SHEET_NAMES.SOURCE_WEIGHTS);
     weightsSheet.appendRow(SOURCE_WEIGHTS_HEADERS);
     DEFAULT_PLATFORM_WEIGHTS.forEach(([platform, weight, rationale]) => {
       weightsSheet.appendRow([platform, weight, rationale, new Date()]);
     });
-    Logger.log("✓ Created 'Source Weights' sheet");
+    Logger.log("✓ 已建立「" + SHEET_NAMES.SOURCE_WEIGHTS + "」工作表");
   }
 
-  // Results sheet (19 columns per v5.0 spec)
-  let resultsSheet = ss.getSheetByName("Results");
+  // 結果工作表 (v5.0 規格 19 欄)
+  let resultsSheet = ss.getSheetByName(SHEET_NAMES.RESULTS);
   if (!resultsSheet) {
-    resultsSheet = ss.insertSheet("Results");
+    resultsSheet = ss.insertSheet(SHEET_NAMES.RESULTS);
     resultsSheet.appendRow(RESULTS_HEADERS);
-    Logger.log("✓ Created 'Results' sheet");
+    Logger.log("✓ 已建立「" + SHEET_NAMES.RESULTS + "」工作表");
   }
 
-  // Feedback History sheet
-  let feedbackSheet = ss.getSheetByName("Feedback History");
+  // 回饋歷史工作表
+  let feedbackSheet = ss.getSheetByName(SHEET_NAMES.FEEDBACK_HISTORY);
   if (!feedbackSheet) {
-    feedbackSheet = ss.insertSheet("Feedback History");
+    feedbackSheet = ss.insertSheet(SHEET_NAMES.FEEDBACK_HISTORY);
     feedbackSheet.appendRow(FEEDBACK_HISTORY_HEADERS);
-    Logger.log("✓ Created 'Feedback History' sheet");
+    Logger.log("✓ 已建立「" + SHEET_NAMES.FEEDBACK_HISTORY + "」工作表");
   }
 
-  // Model Metrics sheet
-  let metricsSheet = ss.getSheetByName("Model Metrics");
+  // 模型指標工作表
+  let metricsSheet = ss.getSheetByName(SHEET_NAMES.MODEL_METRICS);
   if (!metricsSheet) {
-    metricsSheet = ss.insertSheet("Model Metrics");
+    metricsSheet = ss.insertSheet(SHEET_NAMES.MODEL_METRICS);
     metricsSheet.appendRow(MODEL_METRICS_HEADERS);
-    Logger.log("✓ Created 'Model Metrics' sheet");
+    Logger.log("✓ 已建立「" + SHEET_NAMES.MODEL_METRICS + "」工作表");
   }
 
-  // Source Config sheet (for source-specific importance ratings)
-  let sourceConfigSheet = ss.getSheetByName("Source Config");
+  // 來源設定工作表 (用於來源專屬重要性評分)
+  let sourceConfigSheet = ss.getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
   if (!sourceConfigSheet) {
-    sourceConfigSheet = ss.insertSheet("Source Config");
+    sourceConfigSheet = ss.insertSheet(SHEET_NAMES.SOURCE_CONFIG);
     sourceConfigSheet.appendRow(SOURCE_CONFIG_HEADERS);
-    Logger.log("✓ Created 'Source Config' sheet");
+    Logger.log("✓ 已建立「" + SHEET_NAMES.SOURCE_CONFIG + "」工作表");
   }
 
-  Logger.log("✓ All sheets initialized successfully!");
+  Logger.log("✓ 所有工作表初始化完成！");
 }
 
 // =====================================================

@@ -14,7 +14,7 @@
  * @returns {Object} Configuration object
  */
 function loadConfig() {
-  const configSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Config");
+  const configSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.CONFIG);
 
   if (!configSheet) {
     // Return default config if Config sheet doesn't exist
@@ -92,15 +92,15 @@ function loadSourceWeights() {
   });
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Source Weights");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_WEIGHTS);
     if (!sheet || sheet.getLastRow() <= 1) {
       return weights;
     }
 
     const data = sheet.getDataRange().getValues();
     const headers = data[0];
-    const sourceIdx = headers.indexOf("Source");
-    const weightIdx = headers.indexOf("Weight_Score");
+    const sourceIdx = headers.indexOf("來源");
+    const weightIdx = headers.indexOf("權重分數");
 
     for (let i = 1; i < data.length; i++) {
       const source = String(data[i][sourceIdx >= 0 ? sourceIdx : 0] || "").trim();
@@ -128,16 +128,16 @@ function loadSourceConfig() {
   const sourceConfig = new Map();
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Source Config");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
     if (!sheet || sheet.getLastRow() <= 1) {
       return sourceConfig;
     }
 
     const data = sheet.getDataRange().getValues();
     const headers = data[0];
-    const sourceNameIdx = headers.indexOf("Source_Name");
-    const platformIdx = headers.indexOf("Platform");
-    const importanceIdx = headers.indexOf("Importance_Score");
+    const sourceNameIdx = headers.indexOf("來源名稱");
+    const platformIdx = headers.indexOf("平台");
+    const importanceIdx = headers.indexOf("重要性分數");
 
     for (let i = 1; i < data.length; i++) {
       const sourceName = String(data[i][sourceNameIdx >= 0 ? sourceNameIdx : 0] || "").trim();

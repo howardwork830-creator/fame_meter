@@ -29,7 +29,7 @@ function setupDailyTrigger() {
     .everyDays(1)
     .create();
 
-  Logger.log("✓ Trigger created: daily at 06:00 UTC+8 (Asia/Taipei)");
+  Logger.log("✓ 已建立觸發器: 每日 06:00 UTC+8 (Asia/Taipei)");
 }
 
 // =====================================================

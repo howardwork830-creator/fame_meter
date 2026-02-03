@@ -17,9 +17,9 @@ function syncSourcesToConfig() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
 
   // Get or create Source Config sheet
-  let sourceConfigSheet = ss.getSheetByName("Source Config");
+  let sourceConfigSheet = ss.getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
   if (!sourceConfigSheet) {
-    sourceConfigSheet = ss.insertSheet("Source Config");
+    sourceConfigSheet = ss.insertSheet(SHEET_NAMES.SOURCE_CONFIG);
     sourceConfigSheet.appendRow(SOURCE_CONFIG_HEADERS);
   }
 
@@ -37,26 +37,26 @@ function syncSourcesToConfig() {
   }
 
   // Get Raw Data sheet
-  const rawDataSheet = ss.getSheetByName("Raw Data");
+  const rawDataSheet = ss.getSheetByName(SHEET_NAMES.RAW_DATA);
   if (!rawDataSheet) {
-    Logger.log("Warning: Raw Data sheet not found");
+    Logger.log("警告: 找不到「" + SHEET_NAMES.RAW_DATA + "」工作表");
     return;
   }
 
   const rawData = rawDataSheet.getDataRange().getValues();
   if (rawData.length <= 1) {
-    Logger.log("No data in Raw Data sheet");
+    Logger.log("「" + SHEET_NAMES.RAW_DATA + "」工作表無資料");
     return;
   }
 
-  // Find column indices dynamically using header names
+  // Find column indices dynamically using header names (繁體中文)
   const headers = rawData[0];
-  const accountNameCol = headers.indexOf("Account_Name");
-  const platformCol = headers.indexOf("Platform");
-  const accountTypeCol = headers.indexOf("Account_Type");
+  const accountNameCol = headers.indexOf("帳號名稱");
+  const platformCol = headers.indexOf("平台");
+  const accountTypeCol = headers.indexOf("帳號類型");
 
   if (accountNameCol === -1 || platformCol === -1) {
-    Logger.log("Warning: Required columns not found in Raw Data");
+    Logger.log("警告: 在「" + SHEET_NAMES.RAW_DATA + "」中找不到必要欄位");
     return;
   }
 
@@ -98,12 +98,12 @@ function syncSourcesToConfig() {
 
     newSources.forEach((source, key) => {
       newRows.push([
-        source.name,           // Source_Name
-        source.type,           // Source_Type
-        source.platform,       // Platform
-        3,                     // Importance_Score (default: neutral)
-        "auto",                // Rated_By
-        now                    // Last_Modified
+        source.name,           // 來源名稱
+        source.type,           // 來源類型
+        source.platform,       // 平台
+        3,                     // 重要性分數 (預設: 中性)
+        "auto",                // 評分者
+        now                    // 最後修改
       ]);
     });
 
@@ -111,9 +111,9 @@ function syncSourcesToConfig() {
     const startRow = sourceConfigSheet.getLastRow() + 1;
     sourceConfigSheet.getRange(startRow, 1, newRows.length, 6).setValues(newRows);
 
-    Logger.log(`✓ Added ${newRows.length} new sources to Source Config`);
+    Logger.log("✓ 已新增 " + newRows.length + " 個來源至「" + SHEET_NAMES.SOURCE_CONFIG + "」");
   } else {
-    Logger.log("No new sources to add");
+    Logger.log("無新來源需要新增");
   }
 }
 
@@ -130,20 +130,20 @@ function syncCelebritiesToConfig() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
 
   // Get all unique celebrities from Raw Data
-  const rawDataSheet = ss.getSheetByName("Raw Data");
+  const rawDataSheet = ss.getSheetByName(SHEET_NAMES.RAW_DATA);
   if (!rawDataSheet || rawDataSheet.getLastRow() <= 1) {
-    ui.alert("No data in Raw Data sheet");
+    ui.alert("「" + SHEET_NAMES.RAW_DATA + "」工作表無資料");
     return;
   }
 
   const rawData = rawDataSheet.getDataRange().getValues();
   const celebrities = new Set();
 
-  // Dynamic column lookup for Celebrity
+  // Dynamic column lookup for Celebrity (繁體中文)
   const headers = rawData[0];
-  const celebrityIdx = headers.indexOf("Celebrity");
+  const celebrityIdx = headers.indexOf("名人");
   if (celebrityIdx === -1) {
-    ui.alert("Error: Celebrity column not found in Raw Data sheet");
+    ui.alert("錯誤: 在「" + SHEET_NAMES.RAW_DATA + "」工作表找不到「名人」欄位");
     return;
   }
 
@@ -155,12 +155,12 @@ function syncCelebritiesToConfig() {
   }
 
   const celebList = Array.from(celebrities).sort();
-  Logger.log(`Found ${celebList.length} unique celebrities in Raw Data`);
+  Logger.log("在「" + SHEET_NAMES.RAW_DATA + "」找到 " + celebList.length + " 位不重複名人");
 
   // Get current Config
-  const configSheet = ss.getSheetByName("Config");
+  const configSheet = ss.getSheetByName(SHEET_NAMES.CONFIG);
   if (!configSheet) {
-    ui.alert("Config sheet not found. Run Initialize Sheets first.");
+    ui.alert("找不到「" + SHEET_NAMES.CONFIG + "」工作表，請先執行「初始化工作表」");
     return;
   }
 
@@ -180,31 +180,31 @@ function syncCelebritiesToConfig() {
   const newCelebs = celebList.filter(c => !currentCelebs.includes(c));
   const removedCelebs = currentCelebs.filter(c => !celebList.includes(c));
 
-  let message = `📊 Celebrity Sync Analysis\n\n`;
-  message += `Current in Config: ${currentCelebs.length} celebrities\n`;
-  message += `Found in Raw Data: ${celebList.length} celebrities\n\n`;
+  let message = "📊 名人同步分析\n\n";
+  message += "目前設定: " + currentCelebs.length + " 位名人\n";
+  message += "原始資料: " + celebList.length + " 位名人\n\n";
 
   if (newCelebs.length > 0) {
-    message += `➕ New (${newCelebs.length}): ${newCelebs.slice(0, 10).join(", ")}`;
-    if (newCelebs.length > 10) message += `... and ${newCelebs.length - 10} more`;
+    message += "➕ 新增 (" + newCelebs.length + "): " + newCelebs.slice(0, 10).join(", ");
+    if (newCelebs.length > 10) message += "... 以及其他 " + (newCelebs.length - 10) + " 位";
     message += "\n\n";
   }
 
   if (removedCelebs.length > 0) {
-    message += `➖ In Config but no data (${removedCelebs.length}): ${removedCelebs.join(", ")}\n\n`;
+    message += "➖ 設定中有但無資料 (" + removedCelebs.length + "): " + removedCelebs.join(", ") + "\n\n";
   }
 
   if (newCelebs.length === 0 && removedCelebs.length === 0) {
-    ui.alert("✅ Config is already in sync with Raw Data");
+    ui.alert("✅ 設定已與原始資料同步");
     return;
   }
 
-  message += "Update Config to match Raw Data?";
+  message += "是否更新設定以符合原始資料？";
 
-  const response = ui.alert("🔄 Sync Celebrities", message, ui.ButtonSet.YES_NO);
+  const response = ui.alert("🔄 同步名人", message, ui.ButtonSet.YES_NO);
 
   if (response !== ui.Button.YES) {
-    ui.alert("Cancelled. No changes made.");
+    ui.alert("已取消，未做任何變更。");
     return;
   }
 
@@ -214,12 +214,12 @@ function syncCelebritiesToConfig() {
   if (celebRowIndex > 0) {
     // Update existing row
     configSheet.getRange(celebRowIndex, 2).setValue(newValue);
-    configSheet.getRange(celebRowIndex, 4).setValue(new Date()); // Update Last_Updated
+    configSheet.getRange(celebRowIndex, 4).setValue(new Date()); // Update 最後更新
   } else {
     // Add new row
-    configSheet.appendRow(["CELEBRITIES_TO_TRACK", newValue, "List of celebrity names to monitor", new Date()]);
+    configSheet.appendRow(["CELEBRITIES_TO_TRACK", newValue, "要追蹤的名人清單", new Date()]);
   }
 
-  ui.alert(`✅ Updated CELEBRITIES_TO_TRACK\n\nNow tracking ${celebList.length} celebrities.\n\nThe daily trigger will now fetch data for all these celebrities.`);
-  Logger.log(`Updated CELEBRITIES_TO_TRACK with ${celebList.length} celebrities`);
+  ui.alert("✅ 已更新 CELEBRITIES_TO_TRACK\n\n目前追蹤 " + celebList.length + " 位名人。\n\n每日觸發器將會擷取這些名人的資料。");
+  Logger.log("已更新 CELEBRITIES_TO_TRACK，共 " + celebList.length + " 位名人");
 }

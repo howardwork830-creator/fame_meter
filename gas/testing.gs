@@ -88,17 +88,24 @@ function testSingleCelebrity() {
  * Test sheet access
  */
 function testSheetAccess() {
-  const sheetNames = ["Raw Data", "Config", "Results", "Source Weights", "Model Metrics", "Source Config"];
+  const sheetNames = [
+    SHEET_NAMES.RAW_DATA,
+    SHEET_NAMES.CONFIG,
+    SHEET_NAMES.RESULTS,
+    SHEET_NAMES.SOURCE_WEIGHTS,
+    SHEET_NAMES.MODEL_METRICS,
+    SHEET_NAMES.SOURCE_CONFIG
+  ];
 
-  Logger.log("Testing sheet access...");
+  Logger.log("測試工作表存取...");
 
   sheetNames.forEach(name => {
     try {
       const sheet = getSheetSafe(SHEET_ID, name);
       const rowCount = sheet.getLastRow();
-      Logger.log(`✓ ${name}: ${rowCount} rows`);
+      Logger.log("✓ " + name + ": " + rowCount + " 列");
     } catch (e) {
-      Logger.log(`✗ ${name}: ${e.message}`);
+      Logger.log("✗ " + name + ": " + e.message);
     }
   });
 }

@@ -17,9 +17,9 @@ function addMissingResultsColumns() {
   const ui = SpreadsheetApp.getUi();
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Results");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.RESULTS);
     if (!sheet) {
-      ui.alert("Results sheet not found");
+      ui.alert("找不到「" + SHEET_NAMES.RESULTS + "」工作表");
       return;
     }
 
@@ -37,15 +37,15 @@ function addMissingResultsColumns() {
     });
 
     if (addedColumns.length > 0) {
-      ui.alert(`✓ Added ${addedColumns.length} missing columns:\n\n${addedColumns.join("\n")}`);
-      Logger.log(`Added columns to Results: ${addedColumns.join(", ")}`);
+      ui.alert("✓ 已新增 " + addedColumns.length + " 個缺少的欄位:\n\n" + addedColumns.join("\n"));
+      Logger.log("已新增欄位至「" + SHEET_NAMES.RESULTS + "」: " + addedColumns.join(", "));
     } else {
-      ui.alert("✓ All required columns already exist");
+      ui.alert("✓ 所有必要欄位已存在");
     }
 
   } catch (e) {
-    ui.alert(`Error: ${e.message}`);
-    Logger.log(`Error adding columns: ${e.message}`);
+    ui.alert("錯誤: " + e.message);
+    Logger.log("新增欄位時發生錯誤: " + e.message);
   }
 }
 
@@ -59,12 +59,12 @@ function fixResultsSheet() {
   const ui = SpreadsheetApp.getUi();
 
   const response = ui.alert(
-    '🔧 Fix Results Sheet',
-    'This will automatically fix:\n' +
-    '• Convert TRUE/FALSE to Yes/No\n' +
-    '• Add missing trend emojis\n' +
-    '• Add {} for empty JSON fields\n\n' +
-    'Continue?',
+    '🔧 修復結果工作表',
+    '此操作將自動修復:\n' +
+    '• 將 TRUE/FALSE 轉換為 Yes/No\n' +
+    '• 補上缺少的趨勢表情符號\n' +
+    '• 為空的 JSON 欄位填入 {}\n\n' +
+    '是否繼續？',
     ui.ButtonSet.YES_NO
   );
 
@@ -73,25 +73,25 @@ function fixResultsSheet() {
   }
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Results");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.RESULTS);
     if (!sheet) {
-      ui.alert("Results sheet not found");
+      ui.alert("找不到「" + SHEET_NAMES.RESULTS + "」工作表");
       return;
     }
 
     const data = sheet.getDataRange().getValues();
     if (data.length <= 1) {
-      ui.alert("No data to fix");
+      ui.alert("無資料需要修復");
       return;
     }
 
     const headers = data[0];
-    const riskIdx = headers.indexOf("Risk_Flag");
-    const endorsementIdx = headers.indexOf("Endorsement_Ready");
-    const trendIdx = headers.indexOf("Trend_Direction");
-    const sourceBreakdownIdx = headers.indexOf("Source_Breakdown");
-    const scoreChangeIdx = headers.indexOf("Score_Change_Breakdown");
-    const scoreIdx = headers.indexOf("Weighted_Popularity_Score");
+    const riskIdx = headers.indexOf("風險標記");
+    const endorsementIdx = headers.indexOf("可代言");
+    const trendIdx = headers.indexOf("趨勢方向");
+    const sourceBreakdownIdx = headers.indexOf("來源分析");
+    const scoreChangeIdx = headers.indexOf("分數變化分析");
+    const scoreIdx = headers.indexOf("加權聲量分數");
 
     let fixCount = 0;
 
@@ -129,7 +129,7 @@ function fixResultsSheet() {
 
         if (!hasEmoji && trend) {
           // Try to determine direction from value or default to stable
-          let newTrend = "→ Stable";
+          let newTrend = "→ 持平";
 
           // If we have score data, check previous row for delta
           if (scoreIdx >= 0 && i > 1) {
@@ -137,16 +137,16 @@ function fixResultsSheet() {
             const prevScore = Number(data[i-1][scoreIdx]);
             const delta = currentScore - prevScore;
 
-            if (delta > 0.15) newTrend = "🚀 Fast Rising";
-            else if (delta > 0.05) newTrend = "↑ Rising";
-            else if (delta < -0.15) newTrend = "📉 Fast Falling";
-            else if (delta < -0.05) newTrend = "↓ Falling";
+            if (delta > 0.15) newTrend = "🚀 快速上升";
+            else if (delta > 0.05) newTrend = "↑ 上升";
+            else if (delta < -0.15) newTrend = "📉 快速下降";
+            else if (delta < -0.05) newTrend = "↓ 下降";
           }
 
           data[i][trendIdx] = newTrend;
           rowChanged = true;
         } else if (!trend) {
-          data[i][trendIdx] = "→ Stable";
+          data[i][trendIdx] = "→ 持平";
           rowChanged = true;
         }
       }
@@ -177,12 +177,12 @@ function fixResultsSheet() {
       sheet.getRange(1, 1, data.length, data[0].length).setValues(data);
     }
 
-    ui.alert(`✓ Fixed ${fixCount} rows in Results sheet`);
-    Logger.log(`Fixed ${fixCount} rows in Results sheet`);
+    ui.alert("✓ 已修復「" + SHEET_NAMES.RESULTS + "」工作表中的 " + fixCount + " 列");
+    Logger.log("已修復「" + SHEET_NAMES.RESULTS + "」工作表中的 " + fixCount + " 列");
 
   } catch (e) {
-    ui.alert(`Error: ${e.message}`);
-    Logger.log(`Fix error: ${e.message}`);
+    ui.alert("錯誤: " + e.message);
+    Logger.log("修復時發生錯誤: " + e.message);
   }
 }
 
@@ -199,11 +199,11 @@ function fixRawDataSheet() {
   const ui = SpreadsheetApp.getUi();
 
   const response = ui.alert(
-    '🔧 Fix Raw Data Sheet',
-    'This will automatically fix:\n' +
-    '• Normalize platform names (instagram → Instagram)\n' +
-    '• Trim whitespace from text fields\n\n' +
-    'Continue?',
+    '🔧 修復原始資料工作表',
+    '此操作將自動修復:\n' +
+    '• 標準化平台名稱 (instagram → Instagram)\n' +
+    '• 清除文字欄位前後空白\n\n' +
+    '是否繼續？',
     ui.ButtonSet.YES_NO
   );
 
@@ -212,25 +212,25 @@ function fixRawDataSheet() {
   }
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Raw Data");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
     if (!sheet) {
-      ui.alert("Raw Data sheet not found");
+      ui.alert("找不到「" + SHEET_NAMES.RAW_DATA + "」工作表");
       return;
     }
 
     const data = sheet.getDataRange().getValues();
     if (data.length <= 1) {
-      ui.alert("No data to fix");
+      ui.alert("無資料需要修復");
       return;
     }
 
-    // Use dynamic header lookup instead of hardcoded indices
+    // Use dynamic header lookup instead of hardcoded indices (繁體中文)
     const headers = data[0];
-    const platformIdx = headers.indexOf("Platform");
-    const celebrityIdx = headers.indexOf("Celebrity");
+    const platformIdx = headers.indexOf("平台");
+    const celebrityIdx = headers.indexOf("名人");
 
     if (platformIdx === -1 || celebrityIdx === -1) {
-      ui.alert("Error: Required columns not found. Expected: Platform, Celebrity");
+      ui.alert("錯誤: 找不到必要欄位。預期: 平台、名人");
       return;
     }
 
@@ -261,12 +261,12 @@ function fixRawDataSheet() {
       sheet.getRange(1, 1, data.length, data[0].length).setValues(data);
     }
 
-    ui.alert(`✓ Fixed ${fixCount} rows in Raw Data sheet`);
-    Logger.log(`Fixed ${fixCount} rows in Raw Data sheet`);
+    ui.alert("✓ 已修復「" + SHEET_NAMES.RAW_DATA + "」工作表中的 " + fixCount + " 列");
+    Logger.log("已修復「" + SHEET_NAMES.RAW_DATA + "」工作表中的 " + fixCount + " 列");
 
   } catch (e) {
-    ui.alert(`Error: ${e.message}`);
-    Logger.log(`Fix error: ${e.message}`);
+    ui.alert("錯誤: " + e.message);
+    Logger.log("修復時發生錯誤: " + e.message);
   }
 }
 
@@ -281,9 +281,9 @@ function fixSourceWeights() {
   const ui = SpreadsheetApp.getUi();
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Source Weights");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_WEIGHTS);
     if (!sheet) {
-      ui.alert("Source Weights sheet not found. Run Initialize Sheets first.");
+      ui.alert("找不到「" + SHEET_NAMES.SOURCE_WEIGHTS + "」工作表，請先執行「初始化工作表」。");
       return;
     }
 
@@ -306,14 +306,14 @@ function fixSourceWeights() {
     });
 
     if (added.length > 0) {
-      ui.alert(`✓ Added missing platforms:\n\n${added.join("\n")}`);
-      Logger.log(`Added platforms to Source Weights: ${added.join(", ")}`);
+      ui.alert("✓ 已新增缺少的平台:\n\n" + added.join("\n"));
+      Logger.log("已新增平台至「" + SHEET_NAMES.SOURCE_WEIGHTS + "」: " + added.join(", "));
     } else {
-      ui.alert("✓ All required platforms already exist.");
+      ui.alert("✓ 所有必要的平台已存在。");
     }
 
   } catch (e) {
-    ui.alert(`Error: ${e.message}`);
+    ui.alert("錯誤: " + e.message);
   }
 }
 
@@ -331,9 +331,9 @@ function fixRawDataHeaders() {
   const ui = SpreadsheetApp.getUi();
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Raw Data");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
     if (!sheet) {
-      ui.alert("Raw Data sheet not found.");
+      ui.alert("找不到「" + SHEET_NAMES.RAW_DATA + "」工作表。");
       return;
     }
 
@@ -343,47 +343,47 @@ function fixRawDataHeaders() {
     let mismatches = [];
     for (let i = 0; i < RAW_DATA_HEADERS.length; i++) {
       const expected = RAW_DATA_HEADERS[i];
-      const current = currentHeaders[i] || "(empty)";
+      const current = currentHeaders[i] || "(空白)";
       if (expected !== current) {
-        mismatches.push(`Column ${String.fromCharCode(65 + i)}: "${current}" → "${expected}"`);
+        mismatches.push("欄位 " + String.fromCharCode(65 + i) + ": \"" + current + "\" → \"" + expected + "\"");
       }
     }
 
     if (mismatches.length === 0) {
-      ui.alert("✓ All Raw Data headers are correct!");
+      ui.alert("✓ 所有原始資料標題皆正確！");
       return;
     }
 
     // Show comparison with two options
-    let message = `Found ${mismatches.length} header mismatches:\n\n`;
+    let message = "發現 " + mismatches.length + " 個標題不符:\n\n";
     message += mismatches.slice(0, 10).join("\n");
     if (mismatches.length > 10) {
-      message += `\n... and ${mismatches.length - 10} more`;
+      message += "\n... 以及其他 " + (mismatches.length - 10) + " 個";
     }
-    message += "\n\n Choose fix mode:\n";
-    message += "• YES = Fix Labels Only (headers mislabeled, data is in correct position)\n";
-    message += "• NO = Reorder Columns (data is misplaced, move columns based on header names)\n";
-    message += "• CANCEL = Abort";
+    message += "\n\n 選擇修復模式:\n";
+    message += "• 是 = 僅修復標籤 (標題錯誤，資料位置正確)\n";
+    message += "• 否 = 重新排列欄位 (資料位置錯誤，依標題名稱移動欄位)\n";
+    message += "• 取消 = 中止";
 
-    const response = ui.alert("🔧 Fix Raw Data Headers", message, ui.ButtonSet.YES_NO_CANCEL);
+    const response = ui.alert("🔧 修復原始資料標題", message, ui.ButtonSet.YES_NO_CANCEL);
 
     if (response === ui.Button.CANCEL) {
-      ui.alert("Cancelled. No changes made.");
+      ui.alert("已取消，未做任何變更。");
       return;
     }
 
     if (response === ui.Button.YES) {
       // Fix labels only (original behavior)
       sheet.getRange(1, 1, 1, RAW_DATA_HEADERS.length).setValues([RAW_DATA_HEADERS]);
-      ui.alert(`✓ Updated ${mismatches.length} header(s) to match expected schema.\n\nNote: Data was NOT moved. If data is in wrong columns, run again and select NO.`);
-      Logger.log(`Fixed Raw Data headers (labels only): ${mismatches.length} columns updated`);
+      ui.alert("✓ 已更新 " + mismatches.length + " 個標題以符合預期架構。\n\n注意: 資料未被移動。若資料在錯誤的欄位中，請再次執行並選擇「否」。");
+      Logger.log("已修復原始資料標題 (僅標籤): " + mismatches.length + " 欄位已更新");
     } else if (response === ui.Button.NO) {
       // Reorder columns
       reorderRawDataColumns();
     }
 
   } catch (e) {
-    ui.alert(`Error: ${e.message}`);
+    ui.alert("錯誤: " + e.message);
   }
 }
 
@@ -395,15 +395,15 @@ function reorderRawDataColumns() {
   const ui = SpreadsheetApp.getUi();
 
   try {
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Raw Data");
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
     if (!sheet) {
-      ui.alert("Raw Data sheet not found.");
+      ui.alert("找不到「" + SHEET_NAMES.RAW_DATA + "」工作表。");
       return;
     }
 
     const data = sheet.getDataRange().getValues();
     if (data.length === 0) {
-      ui.alert("No data in Raw Data sheet.");
+      ui.alert("「" + SHEET_NAMES.RAW_DATA + "」工作表無資料。");
       return;
     }
 
@@ -428,10 +428,10 @@ function reorderRawDataColumns() {
       const currentIdx = headerPositions[expectedHeader];
 
       if (currentIdx !== undefined && currentIdx !== targetIdx) {
-        preview.push(`${expectedHeader}: Column ${String.fromCharCode(65 + currentIdx)} → Column ${String.fromCharCode(65 + targetIdx)}`);
+        preview.push(expectedHeader + ": 欄位 " + String.fromCharCode(65 + currentIdx) + " → 欄位 " + String.fromCharCode(65 + targetIdx));
         hasChanges = true;
       } else if (currentIdx === undefined) {
-        preview.push(`${expectedHeader}: (missing) → Column ${String.fromCharCode(65 + targetIdx)} [will be empty]`);
+        preview.push(expectedHeader + ": (缺少) → 欄位 " + String.fromCharCode(65 + targetIdx) + " [將為空白]");
         hasChanges = true;
       }
 
@@ -443,20 +443,20 @@ function reorderRawDataColumns() {
     }
 
     if (!hasChanges) {
-      ui.alert("✓ All columns are already in correct order!");
+      ui.alert("✓ 所有欄位已在正確位置！");
       return;
     }
 
     // Show preview
-    let previewMsg = `Column movements:\n\n${preview.slice(0, 15).join("\n")}`;
+    let previewMsg = "欄位移動:\n\n" + preview.slice(0, 15).join("\n");
     if (preview.length > 15) {
-      previewMsg += `\n... and ${preview.length - 15} more`;
+      previewMsg += "\n... 以及其他 " + (preview.length - 15) + " 個";
     }
-    previewMsg += `\n\nThis will rewrite ALL ${data.length - 1} data rows.\n\nProceed?`;
+    previewMsg += "\n\n此操作將重寫全部 " + (data.length - 1) + " 列資料。\n\n是否繼續？";
 
-    const confirm = ui.alert("🔄 Reorder Columns Preview", previewMsg, ui.ButtonSet.YES_NO);
+    const confirm = ui.alert("🔄 重新排列欄位預覽", previewMsg, ui.ButtonSet.YES_NO);
     if (confirm !== ui.Button.YES) {
-      ui.alert("Cancelled. No changes made.");
+      ui.alert("已取消，未做任何變更。");
       return;
     }
 
@@ -491,11 +491,11 @@ function reorderRawDataColumns() {
       sheet.getRange(1, 1, reorderedData.length, reorderedData[0].length).setValues(reorderedData);
     }
 
-    ui.alert(`✓ Reordered ${preview.length} columns.\n\nAll ${data.length - 1} data rows have been remapped to correct positions.`);
-    Logger.log(`Reordered Raw Data columns: ${preview.length} columns moved, ${data.length - 1} rows processed`);
+    ui.alert("✓ 已重新排列 " + preview.length + " 個欄位。\n\n全部 " + (data.length - 1) + " 列資料已重新對應至正確位置。");
+    Logger.log("已重新排列原始資料欄位: " + preview.length + " 欄位已移動, " + (data.length - 1) + " 列已處理");
 
   } catch (e) {
-    ui.alert(`Error: ${e.message}`);
-    Logger.log(`Reorder error: ${e.message}`);
+    ui.alert("錯誤: " + e.message);
+    Logger.log("重新排列時發生錯誤: " + e.message);
   }
 }

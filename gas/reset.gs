@@ -37,11 +37,11 @@ function reboot() {
     const ss = SpreadsheetApp.openById(SHEET_ID);
 
     // Clear data sheets (keep headers)
-    clearDataSheet(ss, "Raw Data");
-    clearDataSheet(ss, "Results");
-    clearDataSheet(ss, "Feedback History");
-    clearDataSheet(ss, "Model Metrics");
-    clearDataSheet(ss, "Source Config");
+    clearDataSheet(ss, SHEET_NAMES.RAW_DATA);
+    clearDataSheet(ss, SHEET_NAMES.RESULTS);
+    clearDataSheet(ss, SHEET_NAMES.FEEDBACK_HISTORY);
+    clearDataSheet(ss, SHEET_NAMES.MODEL_METRICS);
+    clearDataSheet(ss, SHEET_NAMES.SOURCE_CONFIG);
 
     // Reset config sheets to defaults
     resetConfigSheet(ss);
@@ -70,7 +70,7 @@ function reboot() {
 function clearDataSheet(ss, sheetName) {
   const sheet = ss.getSheetByName(sheetName);
   if (!sheet) {
-    Logger.log('Sheet not found: ' + sheetName);
+    Logger.log('找不到工作表: ' + sheetName);
     return;
   }
 
@@ -78,7 +78,7 @@ function clearDataSheet(ss, sheetName) {
   if (lastRow > 1) {
     sheet.deleteRows(2, lastRow - 1);
   }
-  Logger.log('Cleared: ' + sheetName);
+  Logger.log('已清除: ' + sheetName);
 }
 
 /**
@@ -86,7 +86,7 @@ function clearDataSheet(ss, sheetName) {
  * @param {Spreadsheet} ss - Spreadsheet object
  */
 function resetConfigSheet(ss) {
-  const sheet = ss.getSheetByName("Config");
+  const sheet = ss.getSheetByName(SHEET_NAMES.CONFIG);
   if (!sheet) return;
 
   sheet.clear();
@@ -94,16 +94,16 @@ function resetConfigSheet(ss) {
   const now = new Date();
   const data = [
     CONFIG_HEADERS,
-    ["CELEBRITIES_TO_TRACK", "蔡依林, 王心凌, 柯震東, 林俊傑, 五月天", "List of celebrities to track", now],
-    ["MODEL_ACCURACY_THRESHOLD", "0.85", "Alert if model accuracy below this", now],
-    ["CONFIDENCE_THRESHOLD", "0.70", "Endorsement ready if confidence above this", now],
-    ["SENTIMENT_STDDEV_MAX", "0.25", "Maximum sentiment volatility allowed", now],
-    ["DATA_RETENTION_DAYS", "30", "Days to keep historical data", now],
-    ["TRAINING_DATA_MIN", "200", "Minimum feedback samples for retraining", now]
+    ["CELEBRITIES_TO_TRACK", "蔡依林, 王心凌, 柯震東, 林俊傑, 五月天", "要追蹤的名人清單", now],
+    ["MODEL_ACCURACY_THRESHOLD", "0.85", "模型準確度低於此值時發出警告", now],
+    ["CONFIDENCE_THRESHOLD", "0.70", "可信度高於此值時可代言", now],
+    ["SENTIMENT_STDDEV_MAX", "0.25", "最大情感波動度", now],
+    ["DATA_RETENTION_DAYS", "30", "歷史資料保留天數", now],
+    ["TRAINING_DATA_MIN", "200", "重新訓練所需最少回饋樣本數", now]
   ];
 
   sheet.getRange(1, 1, data.length, data[0].length).setValues(data);
-  Logger.log('Reset: Config');
+  Logger.log('已重置: ' + SHEET_NAMES.CONFIG);
 }
 
 /**
@@ -111,7 +111,7 @@ function resetConfigSheet(ss) {
  * @param {Spreadsheet} ss - Spreadsheet object
  */
 function resetSourceWeightsSheet(ss) {
-  const sheet = ss.getSheetByName("Source Weights");
+  const sheet = ss.getSheetByName(SHEET_NAMES.SOURCE_WEIGHTS);
   if (!sheet) return;
 
   sheet.clear();
@@ -119,13 +119,13 @@ function resetSourceWeightsSheet(ss) {
   const now = new Date();
   const data = [
     SOURCE_WEIGHTS_HEADERS,
-    ["TikTok", 10, "Highest reach; viral potential", now],
-    ["Instagram", 9, "Visual engagement; younger demographic", now],
-    ["YouTube", 8, "Long-form content; deep engagement", now],
-    ["Facebook", 7, "Broad reach; older demographic", now],
-    ["News", 6, "Credibility; media coverage", now]
+    ["TikTok", 10, "最高觸及率；病毒式傳播潛力", now],
+    ["Instagram", 9, "視覺互動；年輕族群", now],
+    ["YouTube", 8, "長篇內容；深度互動", now],
+    ["Facebook", 7, "廣泛觸及；年長族群", now],
+    ["News", 6, "可信度；媒體報導", now]
   ];
 
   sheet.getRange(1, 1, data.length, data[0].length).setValues(data);
-  Logger.log('Reset: Source Weights');
+  Logger.log('已重置: ' + SHEET_NAMES.SOURCE_WEIGHTS);
 }

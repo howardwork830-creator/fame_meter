@@ -24,10 +24,10 @@ function getAllDashboardData() {
     const accuracyThreshold = (config.MODEL_ACCURACY_THRESHOLD || 0.85) * 100;
 
     // Single spreadsheet open - read all sheets once
-    const resultsSheet = ss.getSheetByName("Results");
-    const rawSheet = ss.getSheetByName("Raw Data");
-    const sourceSheet = ss.getSheetByName("Source Config");
-    const metricsSheet = ss.getSheetByName("Model Metrics");
+    const resultsSheet = ss.getSheetByName(SHEET_NAMES.RESULTS);
+    const rawSheet = ss.getSheetByName(SHEET_NAMES.RAW_DATA);
+    const sourceSheet = ss.getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
+    const metricsSheet = ss.getSheetByName(SHEET_NAMES.MODEL_METRICS);
 
     // Get raw data once - reused for news, feedback, analytics, progress
     const rawData = rawSheet ? rawSheet.getDataRange().getValues() : [];
@@ -69,7 +69,7 @@ function getAllDashboardData() {
  */
 function getResults() {
   try {
-    const resultsSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Results");
+    const resultsSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.RESULTS);
     return getResultsFromSheet(resultsSheet);
   } catch (e) {
     Logger.log(`Error in getResults: ${e.message}`);
@@ -88,21 +88,21 @@ function getResultsFromSheet(resultsSheet) {
   const data = resultsSheet.getDataRange().getValues();
   if (data.length <= 1) return [];
 
-  // Dynamic column lookup using header names
+  // Dynamic column lookup using header names (繁體中文)
   const headers = data[0];
-  const rankIdx = headers.indexOf("Rank");
-  const celebrityIdx = headers.indexOf("Celebrity");
-  const scoreIdx = headers.indexOf("Weighted_Popularity_Score");
-  const confidenceIdx = headers.indexOf("Confidence_Score");
-  const trendIdx = headers.indexOf("Trend_Direction");
-  const sourceBreakdownIdx = headers.indexOf("Source_Breakdown");
-  const topSourceIdx = headers.indexOf("Top_Source");
-  const riskIdx = headers.indexOf("Risk_Flag");
-  const endorsementIdx = headers.indexOf("Endorsement_Ready");
-  const topContributingIdx = headers.indexOf("Top_Contributing_Source");
-  const scoreChangeIdx = headers.indexOf("Score_Change_Breakdown");
-  const lastUpdatedIdx = headers.indexOf("Last_Updated");
-  const analysisNotesIdx = headers.indexOf("Analysis_Notes");
+  const rankIdx = headers.indexOf("排名");
+  const celebrityIdx = headers.indexOf("名人");
+  const scoreIdx = headers.indexOf("加權聲量分數");
+  const confidenceIdx = headers.indexOf("可信度分數");
+  const trendIdx = headers.indexOf("趨勢方向");
+  const sourceBreakdownIdx = headers.indexOf("來源分析");
+  const topSourceIdx = headers.indexOf("主要來源");
+  const riskIdx = headers.indexOf("風險標記");
+  const endorsementIdx = headers.indexOf("可代言");
+  const topContributingIdx = headers.indexOf("最大貢獻來源");
+  const scoreChangeIdx = headers.indexOf("分數變化分析");
+  const lastUpdatedIdx = headers.indexOf("最後更新");
+  const analysisNotesIdx = headers.indexOf("分析備註");
 
   return data.slice(1).map((row) => ({
     rank: rankIdx >= 0 ? (row[rankIdx] || 0) : 0,
@@ -131,7 +131,7 @@ function getResultsFromSheet(resultsSheet) {
  */
 function getNewsData() {
   try {
-    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Raw Data");
+    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
     if (!rawSheet) return { posts: [], celebrities: [] };
 
     const rawData = rawSheet.getDataRange().getValues();
@@ -191,7 +191,7 @@ function getNewsFromRawData(rawData) {
  */
 function getPostsForFeedback() {
   try {
-    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Raw Data");
+    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
     if (!rawSheet) return [];
 
     const rawData = rawSheet.getDataRange().getValues();
@@ -238,15 +238,15 @@ function getFeedbackFromRawData(rawData) {
  */
 function saveFeedback(postId, feedback, reason) {
   try {
-    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Raw Data");
+    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
 
     if (!rawSheet) {
-      throw new Error("Raw Data 工作表找不到");
+      throw new Error("找不到「" + SHEET_NAMES.RAW_DATA + "」工作表");
     }
 
     // Validate feedback value
     if (!VALID_FEEDBACK_VALUES.includes(feedback)) {
-      throw new Error(`無效的評分: ${feedback}`);
+      throw new Error("無效的回饋值: " + feedback);
     }
 
     // postId is the data row index (1-indexed from frontend)
@@ -254,7 +254,7 @@ function saveFeedback(postId, feedback, reason) {
     const sheetRowNum = parseInt(postId) + 1;
 
     if (isNaN(sheetRowNum) || sheetRowNum < 2) {
-      throw new Error(`無效的貼文 ID: ${postId}`);
+      throw new Error("無效的貼文編號: " + postId);
     }
 
     // Sanitize reason input (max 500 chars)
@@ -283,8 +283,8 @@ function saveFeedbackBatch(items) {
   if (!items || items.length === 0) return { success: true, count: 0 };
 
   try {
-    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Raw Data");
-    if (!rawSheet) throw new Error("Raw Data 工作表找不到");
+    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
+    if (!rawSheet) throw new Error("找不到「" + SHEET_NAMES.RAW_DATA + "」工作表");
 
     // Batch all updates
     items.forEach(item => {
@@ -314,7 +314,7 @@ function saveFeedbackBatch(items) {
  */
 function getProgress() {
   try {
-    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Raw Data");
+    const rawSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.RAW_DATA);
 
     if (!rawSheet) {
       return { reviewed: 0, total: 0 };
@@ -363,8 +363,8 @@ function getAnalytics() {
     const config = loadDashboardConfigFromSheet(ss);
     const accuracyThreshold = (config.MODEL_ACCURACY_THRESHOLD || 0.85) * 100;
 
-    const metricsSheet = ss.getSheetByName("Model Metrics");
-    const rawSheet = ss.getSheetByName("Raw Data");
+    const metricsSheet = ss.getSheetByName(SHEET_NAMES.MODEL_METRICS);
+    const rawSheet = ss.getSheetByName(SHEET_NAMES.RAW_DATA);
     const rawData = rawSheet ? rawSheet.getDataRange().getValues() : [];
 
     return getAnalyticsFromData(metricsSheet, rawData, accuracyThreshold);
@@ -403,8 +403,8 @@ function getAnalyticsFromData(metricsSheet, rawData, accuracyThreshold) {
       const latestRow = metricsData[metricsData.length - 1];
       accuracy = parseFloat(String(latestRow[6]).replace('%', '')) || 0;
       lastRun = latestRow[0] ? new Date(latestRow[0]).toLocaleDateString('zh-TW') : "-";
-      lastRunStatus = latestRow[13] === "SUCCESS" ? "✓ 成功" :
-                      latestRow[13] === "WARNING" ? "⚠️ 警告" :
+      lastRunStatus = latestRow[13] === "成功" ? "✓ 成功" :
+                      latestRow[13] === "警告" ? "⚠️ 警告" :
                       latestRow[13] || "-";
     }
   }
@@ -414,10 +414,10 @@ function getAnalyticsFromData(metricsSheet, rawData, accuracyThreshold) {
 
   for (let i = 1; i < rawData.length; i++) {
     const feedback = rawData[i][8];
-    if (feedback === "Good") {
+    if (feedback === "好評") {
       goodCount++;
       totalWithFeedback++;
-    } else if (feedback === "Bad") {
+    } else if (feedback === "負評") {
       totalWithFeedback++;
     }
   }
@@ -441,7 +441,7 @@ function getAnalyticsFromData(metricsSheet, rawData, accuracyThreshold) {
  */
 function getAccuracyHistory() {
   try {
-    const metricsSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Model Metrics");
+    const metricsSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.MODEL_METRICS);
     return getAccuracyHistoryFromSheet(metricsSheet);
   } catch (e) {
     Logger.log(`Error in getAccuracyHistory: ${e.message}`);
@@ -494,7 +494,7 @@ function getAccuracyHistoryFromSheet(metricsSheet) {
  */
 function getSourcesData() {
   try {
-    const sourceConfigSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Source Config");
+    const sourceConfigSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
     return getSourcesFromSheet(sourceConfigSheet);
   } catch (e) {
     Logger.log(`Error in getSourcesData: ${e.message}`);
@@ -532,16 +532,16 @@ function getSourcesFromSheet(sourceSheet) {
  */
 function saveSourceRating(sourceName, platform, rating) {
   try {
-    const sourceConfigSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Source Config");
+    const sourceConfigSheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
 
     if (!sourceConfigSheet) {
-      throw new Error("Source Config 工作表找不到");
+      throw new Error("找不到「" + SHEET_NAMES.SOURCE_CONFIG + "」工作表");
     }
 
     // Validate rating
     const numRating = parseInt(rating);
     if (isNaN(numRating) || numRating < 1 || numRating > 5) {
-      throw new Error(`無效的評分: ${rating}`);
+      throw new Error("無效的評分: " + rating);
     }
 
     // Sanitize inputs
@@ -549,7 +549,7 @@ function saveSourceRating(sourceName, platform, rating) {
     const sanitizedPlatform = String(platform || '').substring(0, 50);
 
     if (!sanitizedName || !sanitizedPlatform) {
-      throw new Error("來源名稱或平台不能為空");
+      throw new Error("來源名稱或平台不可為空");
     }
 
     const data = sourceConfigSheet.getDataRange().getValues();
@@ -564,7 +564,7 @@ function saveSourceRating(sourceName, platform, rating) {
     }
 
     if (rowIndex === -1) {
-      throw new Error(`找不到來源: ${sanitizedName} (${sanitizedPlatform})`);
+      throw new Error("找不到來源: " + sanitizedName + " (" + sanitizedPlatform + ")");
     }
 
     // Get current user email
@@ -600,8 +600,8 @@ function saveSourceRatingsBatch(ratings) {
   if (!ratings || ratings.length === 0) return { success: true, count: 0 };
 
   try {
-    const sheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName("Source Config");
-    if (!sheet) throw new Error("Source Config 工作表找不到");
+    const sheet = SpreadsheetApp.openById(DASHBOARD_SHEET_ID).getSheetByName(SHEET_NAMES.SOURCE_CONFIG);
+    if (!sheet) throw new Error("找不到「" + SHEET_NAMES.SOURCE_CONFIG + "」工作表");
 
     const data = sheet.getDataRange().getValues();
 
@@ -861,7 +861,7 @@ function compareCelebrities(celebrity1, celebrity2) {
 function loadDashboardConfigFromSheet(ss) {
   try {
     const spreadsheet = ss || SpreadsheetApp.openById(DASHBOARD_SHEET_ID);
-    const configSheet = spreadsheet.getSheetByName("Config");
+    const configSheet = spreadsheet.getSheetByName(SHEET_NAMES.CONFIG);
 
     if (!configSheet) {
       // Return defaults if Config sheet doesn't exist
