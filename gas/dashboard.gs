@@ -1889,7 +1889,7 @@ function getHtmlDashboard() {
 
       google.script.run
         .withSuccessHandler(function() {
-          console.log('Batch saved:', batch.length, 'items');
+          // Batch saved successfully
         })
         .withFailureHandler(function(error) {
           console.error('Batch save failed:', error);
@@ -2212,7 +2212,7 @@ function getHtmlDashboard() {
               }
             }
           });
-          console.log('Batch saved:', toSave.length, 'source ratings');
+          // Batch source ratings saved successfully
         })
         .withFailureHandler(function(error) {
           toSave.forEach(r => {
